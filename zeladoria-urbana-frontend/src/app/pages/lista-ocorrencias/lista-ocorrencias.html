@@ -1,0 +1,42 @@
+<div class="list-container">
+  <h2 class="page-title">Ocorrências Registradas</h2>
+  <p class="page-subtitle">Consulte e gerencie todos os relatos de problemas urbanos em Blumenau.</p>
+
+  <div class="table-responsive">
+    <table class="ocorrencias-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Categoria</th>
+          <th>Descrição</th>
+          <th>Localização (Lat / Lng)</th>
+          <th>Data de Registro</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngIf="ocorrencias.length === 0">
+          <td colspan="6" class="no-data">Nenhuma ocorrência encontrada.</td>
+        </tr>
+
+        <tr *ngFor="let item of ocorrencias">
+          <td><strong>#{{ item.id }}</strong></td>
+          <td>
+            <span class="badge-categoria" [ngClass]="item.categoria">
+              {{ formatarCategoria(item.categoria) }}
+            </span>
+          </td>
+          <td class="col-descricao" [title]="item.descricao">{{ item.descricao }}</td>
+          <td class="col-coords">
+            <div><code>{{ item.latitude }}</code></div>
+            <div><code>{{ item.longitude }}</code></div>
+          </td>
+          <td>{{ item.dataCriacao }}</td>
+          <td>
+            <span class="status-badge pendente">Pendente</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

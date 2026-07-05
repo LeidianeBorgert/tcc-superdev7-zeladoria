@@ -1,0 +1,49 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #007bff; // O azul oficial do portal de Blumenau
+  padding: 15px 30px;
+  color: white;
+  font-family: sans-serif;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+
+  .logo {
+    font-size: 1.3rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 20px;
+
+    a {
+      color: rgba(255, 255, 255, 0.8);
+      text-decoration: none;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      &.active {
+        color: white;
+        background-color: rgba(255, 255, 255, 0.2);
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+.content-container {
+  padding: 20px;
+  background-color: #f4f7f6;
+  min-height: calc(100vh - 70px);
+  font-family: sans-serif;
+  box-sizing: border-box;
+}
