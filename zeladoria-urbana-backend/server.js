@@ -29,6 +29,7 @@ async function iniciarBanco() {
 
         pool = mysql.createPool(dbConfig);
         
+      
         await pool.query(`
             CREATE TABLE IF NOT EXISTS ocorrencias (
                 id INT AUTO_INCREMENT PRIMARY KEY,
@@ -40,21 +41,46 @@ async function iniciarBanco() {
                 status VARCHAR(50) DEFAULT 'Pendente'
             )
         `);
-        console.log('📦 Conectado ao MySQL e tabela verificada com sucesso!');
+
+        try {
+            await pool.query(`ALTER TABLE ocorrencias ADD COLUMN status VARCHAR(50) DEFAULT 'Pendente'`);
+            console.log('Coluna status adicionada com sucesso!');
+        } catch (e) {
+        
+            console.log('Coluna status já existia ou foi verificada.');
+        }
+
+        console.log('Conectado ao MySQL e tabela verificada com sucesso!');
     } catch (erro) {
-        console.error('❌ Erro fatal ao conectar no MySQL:', erro.message);
+        console.error('Erro fatal ao conectar no MySQL:', erro.message);
     }
 }
 
 iniciarBanco();
 
 app.get('/api/relatos', async (req, res) => {
-    console.log('🔄 Angular solicitou a listagem de relatos.');
+    console.log('Angular solicitou a listagem de relatos.');
     try {
         const [linhas] = await pool.query('SELECT * FROM ocorrencias ORDER BY id DESC');
         res.json(linhas);
     } catch (erro) {
         res.status(500).json({ erro: 'Erro ao buscar dados no banco.' });
+    }
+});
+
+app.put('/api/relatos/:id/status', async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    console.log(`Atualizando status da ocorrência ${id} para: ${status}`);
+
+    try {
+        const query = 'UPDATE ocorrencias SET status = ? WHERE id = ?';
+        await pool.query(query, [status, id]);
+        
+        res.json({ message: 'Status atualizado com sucesso!' });
+    } catch (erro) {
+        console.error('Erro ao atualizar status no MySQL:', erro.message);
+        res.status(500).json({ erro: 'Erro ao atualizar status no banco de dados.' });
     }
 });
 
@@ -76,7 +102,7 @@ app.post('/api/relatos', async (req, res) => {
             status: 'Pendente'
         };
 
-        console.log('✅ Novo relato salvo no MySQL:', novoRelato);
+        console.log(' Novo relato salvo no MySQL:', novoRelato);
         res.status(201).json(novoRelato);
     } catch (erro) {
         console.error(erro);
@@ -85,5 +111,5 @@ app.post('/api/relatos', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 API Zeladoria Urbana rodando em: http://localhost:${PORT}`);
+    console.log(` API Zeladoria Urbana rodando em: http://localhost:${PORT}`);
 });

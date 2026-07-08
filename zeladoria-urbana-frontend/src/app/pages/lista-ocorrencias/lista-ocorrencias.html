@@ -33,7 +33,15 @@
           </td>
           <td>{{ item.dataCriacao }}</td>
           <td>
-            <span class="status-badge pendente">Pendente</span>
+            <select 
+              [value]="item.status || 'Pendente'" 
+              (change)="mudarStatus(item, $any($event.target).value)"
+              style="padding: 5px; border-radius: 4px; border: 1px solid #ccc; background-color: white; cursor: pointer;"
+            >
+              <option value="Pendente">Pendente</option>
+              <option value="Em Andamento">Em Andamento</option>
+              <option value="Resolvido">Resolvido</option>  
+            </select>
           </td>
         </tr>
       </tbody>

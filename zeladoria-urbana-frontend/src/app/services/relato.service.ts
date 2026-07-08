@@ -31,4 +31,7 @@ export class RelatoService {
   public listarRelatos(): Observable<Relato[]> {
     return this.http.get<Relato[]>(this.apiUrl);
   }
+  public atualizarStatus(id: number, status: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}/status`, { status });
+  }
 }
