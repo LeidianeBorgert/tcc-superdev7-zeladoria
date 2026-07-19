@@ -1,1 +1,60 @@
-<p>novo-relato works!</p>
+<div class="form-container">
+  <h2 class="page-title">Registrar Nova Ocorrência</h2>
+  <p class="page-subtitle">Informe os detalhes do problema urbano para que a equipe de manutenção possa agir.</p>
+
+  <form class="relato-form" [formGroup]="relatoForm" (ngSubmit)="enviarRelato()">
+    
+    <div class="form-group">
+      <label for="categoria">Categoria do Problema</label>
+      <select 
+        id="categoria" 
+        class="form-control" 
+        formControlName="categoria"
+        [ngClass]="{ 'is-invalid': relatoForm.get('categoria')?.invalid && relatoForm.get('categoria')?.touched }"
+      >
+        <option value="" disabled selected>Selecione uma categoria...</option>
+        <option value="buraco">Buraco na Via / Asfalto Danificado</option>
+        <option value="iluminacao">Iluminação Pública (Lâmpada Queimada)</option>
+        <option value="vazamento">Vazamento de Água / Esgoto</option>
+        <option value="calçada">Calçada Danificada / Obstáculo</option>
+        <option value="lixo">Descarte Irregular de Lixo / Entulho</option>
+      </select>
+
+      <div class="error-message" *ngIf="relatoForm.get('categoria')?.invalid && relatoForm.get('categoria')?.touched">
+        A categoria é obrigatória.
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="descricao">Descrição do Problema</label>
+      <textarea 
+        id="descricao" 
+        rows="4" 
+        class="form-control" 
+        placeholder="Descreva com detalhes o que está acontecendo..." 
+        formControlName="descricao"
+        [ngClass]="{ 'is-invalid': relatoForm.get('descricao')?.invalid && relatoForm.get('descricao')?.touched }"
+      ></textarea>
+
+      <div class="error-message" *ngIf="relatoForm.get('descricao')?.invalid && relatoForm.get('descricao')?.touched">
+        <span *ngIf="relatoForm.get('descricao')?.errors?.['required']">A descrição é obrigatória.</span>
+        <span *ngIf="relatoForm.get('descricao')?.errors?.['minlength']">A descrição precisa ter pelo menos 10 caracteres.</span>
+      </div>
+    </div>
+
+    <div class="coordinates-display">
+      <div class="coord-box"><strong>Latitude:</strong> {{ displayLatitude }}</div>
+      <div class="coord-box"><strong>Longitude:</strong> {{ displayLongitude }}</div>
+    </div>
+
+    <div class="form-group">
+      <label>Selecione o Local no Mapa (Arraste o marcador 📍)</label>
+      <div id="map" class="map-container-real"></div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary">Cancelar</button>
+      <button type="submit" class="btn btn-primary" [disabled]="relatoForm.invalid">Enviar Relato</button>
+    </div>
+  </form>
+</div>

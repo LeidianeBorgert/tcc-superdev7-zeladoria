@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RelatoService } from '../../services/relato.service';
 
 interface Relato {
@@ -15,14 +16,18 @@ interface Relato {
 @Component({
   selector: 'app-lista-ocorrencias',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './lista-ocorrencias.html',
   styleUrl: './lista-ocorrencias.scss'
 })
 export class ListaOcorrenciasComponent implements OnInit {
-  public ocorrencias: Relato[] = [];
+  public ocorrencias: any[] = [];
 
-  constructor(private relatoService: RelatoService) {}
+  
+  constructor(
+    private relatoService: RelatoService,
+    private cdr: ChangeDetectorRef 
+  ) {}
 
   ngOnInit(): void {
     this.carregarOcorrencias();
@@ -32,6 +37,10 @@ export class ListaOcorrenciasComponent implements OnInit {
     this.relatoService.listarRelatos().subscribe({
       next: (dados: any) => {
         this.ocorrencias = dados;
+        console.log('Ocorrências carregadas com sucesso:', this.ocorrencias);
+        
+        
+        this.cdr.detectChanges(); 
       },
       error: (erro: any) => {
         console.error('Erro ao carregar ocorrências do banco:', erro);
@@ -42,18 +51,26 @@ export class ListaOcorrenciasComponent implements OnInit {
   formatarCategoria(categoria: string): string {
     const nomes: { [key: string]: string } = {
       'asfalto': 'Asfalto Danificado',
+      'buraco': 'Buraco na Via',
+      'vazamento': 'Vazamento de Água/Esgoto',
       'iluminacao': 'Iluminação Pública',
-      'lixo': 'Descarte de Lixo'
+      'Iluminação Pública': 'Iluminação Pública',
+      'lixo': 'Descarte de Lixo',
+      'calçada': 'Calçada Danificada / Obstáculo' 
     };
     return nomes[categoria] || categoria;
   }
-  mudarStatus(item: Relato, novoStatus: string): void {
+
+  mudarStatus(item: any, novoStatus: string): void {
     if (!item.id) return;
 
     this.relatoService.atualizarStatus(item.id, novoStatus).subscribe({
       next: () => {
         item.status = novoStatus; 
-        console.log('Status atualizado com sucesso!');
+        console.log('Status updated com sucesso!');
+        
+        
+        this.cdr.detectChanges(); 
       },
       error: (erro) => {
         console.error('Erro ao mudar status:', erro);

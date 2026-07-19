@@ -1,19 +1,24 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
+import { ListaOcorrenciasComponent } from './lista-ocorrencias';
+import { RelatoService } from '../../services/relato.service';
 
-import { ListaOcorrencias } from './lista-ocorrencias';
-
-describe('ListaOcorrencias', () => {
-  let component: ListaOcorrencias;
-  let fixture: ComponentFixture<ListaOcorrencias>;
+describe('ListaOcorrenciasComponent', () => {
+  let component: ListaOcorrenciasComponent;
+  let fixture: ComponentFixture<ListaOcorrenciasComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ListaOcorrencias],
+      imports: [ListaOcorrenciasComponent],
+      providers: [
+        provideHttpClient(),
+        RelatoService
+      ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ListaOcorrencias);
+    fixture = TestBed.createComponent(ListaOcorrenciasComponent);
     component = fixture.componentInstance;
-    await fixture.whenStable();
+    fixture.detectChanges();
   });
 
   it('should create', () => {
