@@ -1,20 +1,51 @@
 @import "../../../../node_modules/leaflet/dist/leaflet.css";
 
-.form-container {
+
+.container-novo-relato {
   max-width: 800px;
-  margin: 0 auto;
+  margin: 80px auto 0 auto; 
+  padding: 20px;
+}
+
+.progresso-container {
+  margin-bottom: 25px;
+  text-align: center;
+
+  .barra-progresso {
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    height: 10px;
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 5px;
+  }
+
+  .progresso-preenchido {
+    background-color: #007bff;
+    height: 100%;
+    transition: width 0.3s ease-in-out;
+  }
+
+  .texto-progresso {
+    font-size: 14px;
+    color: #666;
+    margin: 0;
+  }
+}
+
+.etapa-card {
   background-color: white;
   padding: 30px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 
-  .page-title {
+  h2 {
     color: #333;
     font-size: 1.6rem;
     margin: 0 0 5px 0;
   }
 
-  .page-subtitle {
+  p {
     color: #666;
     font-size: 0.95rem;
     margin: 0 0 25px 0;
@@ -22,120 +53,127 @@
   }
 }
 
-.relato-form {
+.campo-grupo {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 8px;
+  margin-bottom: 20px;
 
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-
-    label {
-      font-weight: 600;
-      color: #495057;
-      font-size: 0.9rem;
-    }
-
-    .form-control {
-      padding: 12px;
-      border: 1px solid #ced4da;
-      border-radius: 6px;
-      font-size: 0.95rem;
-      font-family: sans-serif;
-      background-color: #fff;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-
-      &:focus {
-        outline: none;
-        border-color: #007bff;
-        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
-      }
-    }
-
-    select.form-control {
-      cursor: pointer;
-    }
-
-    textarea.form-control {
-      resize: vertical;
-    }
+  label {
+    font-weight: 600;
+    color: #495057;
+    font-size: 0.9rem;
   }
 }
 
-// Exibição estilizada das coordenadas
-.coordinates-display {
+.input-padrao, .textarea-padrao, .input-file {
+  padding: 12px;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: sans-serif;
+  background-color: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+  }
+}
+
+.textarea-padrao {
+  height: 120px;
+  resize: vertical;
+}
+
+.coordenadas-preview {
   display: flex;
   gap: 15px;
-  margin-bottom: 5px;
+  margin-bottom: 20px;
+  background-color: #f1f3f5;
+  padding: 10px;
+  border-radius: 6px;
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: #495057;
+  border: 1px solid #dee2e6;
+  justify-content: center;
+}
 
-  .coord-box {
-    flex: 1;
-    background-color: #f1f3f5;
-    padding: 10px;
-    border-radius: 6px;
-    font-family: monospace;
-    font-size: 0.9rem;
+.opcoes-identificacao {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 20px;
+
+  .opcao-radio {
+    cursor: pointer;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     color: #495057;
-    border: 1px solid #dee2e6;
+    font-weight: 500;
   }
 }
 
-// O elemento do mapa Leaflet real
-.map-container-real {
-  height: 350px;
-  width: 100%;
+.preview-foto-box {
+  margin-top: 15px;
+  text-align: center;
+  background-color: #f8f9fa;
+  padding: 15px;
   border-radius: 6px;
-  border: 1px solid #ced4da;
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
-  z-index: 1; // Garante que o mapa fique abaixo dos menus suspensos
+  border: 1px dashed #ced4da;
 }
 
-// Botões de Ação
-.form-actions {
+.botoes-grupo {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+  justify-content: space-between; 
   margin-top: 10px;
   border-top: 1px solid #dee2e6;
   padding-top: 20px;
+}
 
-  .btn {
-    padding: 12px 24px;
-    border-radius: 6px;
-    font-size: 0.95rem;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+.btn-proximo, .btn-enviar, .btn-voltar {
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s ease, transform 0.1s ease;
 
-    &:active {
-      transform: scale(0.98);
-    }
+  &:active {
+    transform: scale(0.98);
+  }
+}
 
-    &.btn-primary {
-      background-color: #007bff;
-      color: white;
+.btn-proximo, .btn-enviar {
+  background-color: #007bff;
+  color: white;
+  margin-left: auto; 
 
-      &:hover {
-        background-color: #0056b3;
-      }
-    }
-
-    &.btn-secondary {
-      background-color: #6c757d;
-      color: white;
-
-      &:hover {
-        background-color: #5a6268;
-      }
-    }
+  &:hover {
+    background-color: #0056b3;
   }
 
-.form-control {
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-  
+  &:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+}
+
+.btn-voltar {
+  background-color: #6c757d;
+  color: white;
+
+  &:hover {
+    background-color: #5a6268;
+  }
+}
+
+
+.input-padrao, .textarea-padrao {
   &.is-invalid {
     border-color: #dc3545 !important;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
@@ -156,5 +194,4 @@
   color: #dc3545;
   font-weight: 500;
   display: block;
-}
 }

@@ -18,7 +18,7 @@ L.Marker.prototype.options.icon = L.icon({
   selector: 'app-novo-relato',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule], 
-  templateUrl: './novo-relato.html', 
+  templateUrl: './novo-relato.html',
   styleUrl: './novo-relato.scss',
   encapsulation: ViewEncapsulation.None
 })
@@ -26,17 +26,78 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
   private map: L.Map | undefined;
   private marker: L.Marker | undefined;
   
+  
+  public etapaAtual: number = 1; 
+  public ehAnonimo: boolean = false;
+  public fotoPreview: string | null = null;
+  public fotoArquivo: File | null = null;
+
   public relatoForm: FormGroup;
   public displayLatitude: string = '-26.9166';
   public displayLongitude: string = '-49.0661';
 
   constructor(private fb: FormBuilder, private cdr: ChangeDetectorRef, private relatoService: RelatoService) {
+    
     this.relatoForm = this.fb.group({
       categoria: ['', Validators.required],
       descricao: ['', [Validators.required, Validators.minLength(10)]],
       latitude: ['-26.9166', Validators.required],
-      longitude: ['-49.0661', Validators.required]
+      longitude: ['-49.0661', Validators.required],
+      nomeUsuario: ['Anonymous'], 
+      foto: ['']
     });
+  }
+
+  
+  public proximaEtapa(): void {
+    if (this.etapaAtual < 4) {
+      this.etapaAtual = this.etapaAtual + 1;
+      
+     
+      this.cdr.detectChanges();
+    }
+  }
+
+  public etapaAnterior(): void {
+    if (this.etapaAtual > 1) {
+      this.etapaAtual = this.etapaAtual - 1;
+      
+      
+      this.cdr.detectChanges();
+      if (this.etapaAtual === 1) {
+        setTimeout(() => {
+          this.initMap();
+        }, 100);
+      }
+    }
+  }
+
+ 
+  public definirAnonimo(statusAnonimo: boolean): void {
+    this.ehAnonimo = statusAnonimo;
+    if (statusAnonimo === true) {
+      this.relatoForm.patchValue({ nomeUsuario: 'Anonymous' });
+    } else {
+      this.relatoForm.patchValue({ nomeUsuario: '' });
+    }
+    this.cdr.detectChanges();
+  }
+
+ 
+  public aoSelecionarFoto(event: any): void {
+    const arquivo = event.target.files[0];
+    if (arquivo) {
+      this.fotoArquivo = arquivo;
+      
+      
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.fotoPreview = reader.result as string;
+        this.relatoForm.patchValue({ foto: this.fotoPreview }); 
+        this.cdr.detectChanges();
+      };
+      reader.readAsDataURL(arquivo);
+    }
   }
 
   ngAfterViewInit(): void {
@@ -100,16 +161,22 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  public enviarRelato(): void {
+  public enviarRelatoCompleto(): void {
     if (this.relatoForm.valid) {
       const dadosDoRelato = this.relatoForm.value;
-
-      console.log('Disparando dados para o Service:', dadosDoRelato);
 
       this.relatoService.salvarRelato(dadosDoRelato).subscribe({
         next: (resposta) => {
           alert('Relato salvo com sucesso no banco de dados!');
           this.relatoForm.reset(); 
+          this.etapaAtual = 1; 
+          this.fotoPreview = null;
+          this.fotoArquivo = null;
+          this.ehAnonimo = false;
+          
+          setTimeout(() => {
+            this.initMap();
+          }, 200);
         },
         error: (erro) => {
           console.error('Erro ao conectar na API:', erro);

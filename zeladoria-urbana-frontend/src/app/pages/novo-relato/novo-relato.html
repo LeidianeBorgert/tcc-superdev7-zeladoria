@@ -1,60 +1,109 @@
-<div class="form-container">
-  <h2 class="page-title">Registrar Nova Ocorrência</h2>
-  <p class="page-subtitle">Informe os detalhes do problema urbano para que a equipe de manutenção possa agir.</p>
 
-  <form class="relato-form" [formGroup]="relatoForm" (ngSubmit)="enviarRelato()">
+<div class="container-novo-relato" style="margin-top: 80px; padding: 20px;">
+
+
+  <div class="progresso-container">
+    <div class="barra-progresso">
+      
+      <div class="progresso-preenchido" [style.width.%]="(etapaAtual / 4) * 100"></div>
+    </div>
+    <p class="texto-progresso">Etapa {{ etapaAtual }} de 4</p>
+  </div>
+
+  
+  <form [formGroup]="relatoForm" (ngSubmit)="enviarRelatoCompleto()">
+
     
-    <div class="form-group">
-      <label for="categoria">Categoria do Problema</label>
-      <select 
-        id="categoria" 
-        class="form-control" 
-        formControlName="categoria"
-        [ngClass]="{ 'is-invalid': relatoForm.get('categoria')?.invalid && relatoForm.get('categoria')?.touched }"
-      >
-        <option value="" disabled selected>Selecione uma categoria...</option>
-        <option value="buraco">Buraco na Via / Asfalto Danificado</option>
-        <option value="iluminacao">Iluminação Pública (Lâmpada Queimada)</option>
-        <option value="vazamento">Vazamento de Água / Esgoto</option>
-        <option value="calçada">Calçada Danificada / Obstáculo</option>
-        <option value="lixo">Descarte Irregular de Lixo / Entulho</option>
-      </select>
+    <div *ngIf="etapaAtual === 1" class="etapa-card">
+      <h2>Confirme a Localização</h2>
+      <p>Arraste o marcador no mapa exatamente sobre o problema urbano.</p>
+      
+      <!-- O seu mapa Leaflet original -->
+      <div id="map" style="height: 350px; border-radius: 8px; margin-bottom: 20px;"></div>
 
-      <div class="error-message" *ngIf="relatoForm.get('categoria')?.invalid && relatoForm.get('categoria')?.touched">
-        A categoria é obrigatória.
+      <div class="coordenadas-preview">
+        <p><strong>Lat:</strong> {{ displayLatitude }} | <strong>Lng:</strong> {{ displayLongitude }}</p>
+      </div>
+
+      <button type="button" class="btn-proximo" (click)="proximaEtapa()">Confirmar Este Local</button>
+    </div>
+
+    
+    <div *ngIf="etapaAtual === 2" class="etapa-card">
+      <h2>O que aconteceu?</h2>
+      <p>Selecione o tipo de problema e descreva o que precisa de conserto.</p>
+
+      <div class="campo-grupo">
+        <label>Selecione a Categoria:</label>
+        <select formControlName="categoria" class="input-padrao">
+          <option value="">Selecione uma opção...</option>
+          <option value="buraco">Buraco na Via</option>
+          <option value="iluminacao">Iluminação Pública</option>
+          <option value="vazamento">Vazamento de Água / Esgoto</option>
+          <option value="lixo">Descarte de Lixo</option>
+          <option value="calçada">Calçada Danificada</option>
+        </select>
+      </div>
+
+      <div class="campo-grupo">
+        <label>Descrição do Problema:</label>
+        <textarea formControlName="descricao" placeholder="Descreva os detalhes aqui..." class="textarea-padrao"></textarea>
+      </div>
+
+      <div class="botoes-grupo">
+        <button type="button" class="btn-voltar" (click)="etapaAnterior()">Voltar</button>
+        <button type="button" class="btn-proximo" (click)="proximaEtapa()">Ir para Mídia</button>
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="descricao">Descrição do Problema</label>
-      <textarea 
-        id="descricao" 
-        rows="4" 
-        class="form-control" 
-        placeholder="Descreva com detalhes o que está acontecendo..." 
-        formControlName="descricao"
-        [ngClass]="{ 'is-invalid': relatoForm.get('descricao')?.invalid && relatoForm.get('descricao')?.touched }"
-      ></textarea>
+    
+    <div *ngIf="etapaAtual === 3" class="etapa-card">
+      <h2>Adicione Evidências Visuais</h2>
+      <p>Se tiver, selecione um arquivo de imagem do seu dispositivo para anexar ao relato.</p>
 
-      <div class="error-message" *ngIf="relatoForm.get('descricao')?.invalid && relatoForm.get('descricao')?.touched">
-        <span *ngIf="relatoForm.get('descricao')?.errors?.['required']">A descrição é obrigatória.</span>
-        <span *ngIf="relatoForm.get('descricao')?.errors?.['minlength']">A descrição precisa ter pelo menos 10 caracteres.</span>
+      <div class="campo-grupo">
+        <input type="file" (change)="aoSelecionarFoto($event)" accept="image/*" class="input-file">
+      </div>
+
+      
+      <div *ngIf="fotoPreview" class="preview-foto-box">
+        <img [src]="fotoPreview" alt="Preview da foto" style="max-width: 100%; max-height: 200px; border-radius: 4px;">
+      </div>
+
+      <div class="botoes-grupo">
+        <button type="button" class="btn-voltar" (click)="etapaAnterior()">Voltar</button>
+        <button type="button" class="btn-proximo" (click)="proximaEtapa()">Ir para Identificação</button>
       </div>
     </div>
 
-    <div class="coordinates-display">
-      <div class="coord-box"><strong>Latitude:</strong> {{ displayLatitude }}</div>
-      <div class="coord-box"><strong>Longitude:</strong> {{ displayLongitude }}</div>
+    
+    <div *ngIf="etapaAtual === 4" class="etapa-card">
+      <h2>Como deseja se identificar?</h2>
+      <p>Você pode usar o seu nome ou enviar o relato de forma totalmente anônima.</p>
+
+      <div class="opcoes-identificacao">
+        <label class="opcao-radio">
+          <input type="radio" name="opcaoAnonimo" [value]="false" (change)="definirAnonimo(false)" [checked]="!ehAnonimo">
+          Identificar-me (Digitar meu nome)
+        </label>
+        
+        <label class="opcao-radio">
+          <input type="radio" name="opcaoAnonimo" [value]="true" (change)="definirAnonimo(true)" [checked]="ehAnonimo">
+          Enviar como Anônimo
+        </label>
+      </div>
+
+      
+      <div *ngIf="!ehAnonimo" class="campo-grupo">
+        <label>Seu Nome Completo:</label>
+        <input type="text" formControlName="nomeUsuario" placeholder="Digite seu nome..." class="input-padrao">
+      </div>
+
+      <div class="botoes-grupo">
+        <button type="button" class="btn-voltar" (click)="etapaAnterior()">Voltar</button>
+        <button type="submit" class="btn-enviar" [disabled]="!relatoForm.valid">Enviar Relato Final</button>
+      </div>
     </div>
 
-    <div class="form-group">
-      <label>Selecione o Local no Mapa (Arraste o marcador 📍)</label>
-      <div id="map" class="map-container-real"></div>
-    </div>
-
-    <div class="form-actions">
-      <button type="button" class="btn btn-secondary">Cancelar</button>
-      <button type="submit" class="btn btn-primary" [disabled]="relatoForm.invalid">Enviar Relato</button>
-    </div>
   </form>
 </div>
