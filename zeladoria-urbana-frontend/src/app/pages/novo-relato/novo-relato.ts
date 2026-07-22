@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, ChangeDetectorRef } from '@angular/core'; 
+import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core'; 
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common'; 
 import { RelatoService } from '../../services/relato.service';
@@ -23,9 +23,11 @@ L.Marker.prototype.options.icon = L.icon({
   encapsulation: ViewEncapsulation.None
 })
 export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
+
+  @ViewChild('nomeInput') nomeInput!: ElementRef;
+
   private map: L.Map | undefined;
   private marker: L.Marker | undefined;
-  
   
   public etapaAtual: number = 1; 
   public ehAnonimo: boolean = false;
@@ -37,7 +39,6 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
   public displayLongitude: string = '-49.0661';
 
   constructor(private fb: FormBuilder, private cdr: ChangeDetectorRef, private relatoService: RelatoService) {
-    
     this.relatoForm = this.fb.group({
       categoria: ['', Validators.required],
       descricao: ['', [Validators.required, Validators.minLength(10)]],
@@ -48,20 +49,26 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  
+ 
   public proximaEtapa(): void {
     if (this.etapaAtual < 4) {
       this.etapaAtual = this.etapaAtual + 1;
       
-     
       this.cdr.detectChanges();
+
+      if (this.etapaAtual === 4) {
+        setTimeout(() => {
+          if (this.nomeInput && !this.ehAnonimo) {
+            this.nomeInput.nativeElement.focus();
+          }
+        }, 100);
+      }
     }
   }
 
   public etapaAnterior(): void {
     if (this.etapaAtual > 1) {
       this.etapaAtual = this.etapaAtual - 1;
-      
       
       this.cdr.detectChanges();
       if (this.etapaAtual === 1) {
@@ -72,23 +79,27 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
     }
   }
 
- 
   public definirAnonimo(statusAnonimo: boolean): void {
     this.ehAnonimo = statusAnonimo;
     if (statusAnonimo === true) {
       this.relatoForm.patchValue({ nomeUsuario: 'Anonymous' });
     } else {
       this.relatoForm.patchValue({ nomeUsuario: '' });
+      
+
+      setTimeout(() => {
+        if (this.nomeInput) {
+          this.nomeInput.nativeElement.focus();
+        }
+      }, 100);
     }
     this.cdr.detectChanges();
   }
 
- 
   public aoSelecionarFoto(event: any): void {
     const arquivo = event.target.files[0];
     if (arquivo) {
       this.fotoArquivo = arquivo;
-      
       
       const reader = new FileReader();
       reader.onload = () => {

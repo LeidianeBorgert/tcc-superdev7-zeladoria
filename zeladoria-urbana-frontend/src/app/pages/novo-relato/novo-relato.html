@@ -92,11 +92,16 @@
           Enviar como Anônimo
         </label>
       </div>
-
-      
-      <div *ngIf="!ehAnonimo" class="campo-grupo">
-        <label>Seu Nome Completo:</label>
-        <input type="text" formControlName="nomeUsuario" placeholder="Digite seu nome..." class="input-padrao">
+      <div class="campo-grupo">
+        <label for="nomeCompleto">Seu Nome Completo:</label>
+        <input 
+        #nomeInput
+        id="nomeCompleto"
+        type="text" 
+        class="input-padrao" 
+        formControlName="nome" 
+        placeholder="Digite seu nome..."
+         />
       </div>
 
       <div class="botoes-grupo">
