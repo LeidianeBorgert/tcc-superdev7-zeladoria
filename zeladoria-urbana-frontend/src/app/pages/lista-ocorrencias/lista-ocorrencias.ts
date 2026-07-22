@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RelatoService } from '../../services/relato.service';
 
 interface Relato {
@@ -11,6 +12,8 @@ interface Relato {
   longitude: string;
   dataCriacao?: string;
   status?: string;
+  endereco?: string;
+  foto?: string;
 }
 
 @Component({
@@ -21,12 +24,12 @@ interface Relato {
   styleUrl: './lista-ocorrencias.scss'
 })
 export class ListaOcorrenciasComponent implements OnInit {
-  public ocorrencias: any[] = [];
+  public ocorrencias: Relato[] = [];
 
-  
   constructor(
     private relatoService: RelatoService,
-    private cdr: ChangeDetectorRef 
+    private cdr: ChangeDetectorRef,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
@@ -37,15 +40,56 @@ export class ListaOcorrenciasComponent implements OnInit {
     this.relatoService.listarRelatos().subscribe({
       next: (dados: any) => {
         this.ocorrencias = dados;
-        console.log('Ocorrências carregadas com sucesso:', this.ocorrencias);
         
-        
+        this.ocorrencias.forEach(item => {
+          this.buscarEnderecoPorCoordenadas(item);
+        });
+
         this.cdr.detectChanges(); 
       },
       error: (erro: any) => {
         console.error('Erro ao carregar ocorrências do banco:', erro);
       }
     });
+  }
+
+buscarEnderecoPorCoordenadas(item: Relato): void {
+  if (!item.latitude || !item.longitude) {
+    item.endereco = 'Coordenadas não informadas';
+    return;
+  }
+
+  const lat = String(item.latitude).trim();
+  const lon = String(item.longitude).trim();
+
+  const url = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`;
+
+  this.http.get<any>(url).subscribe({
+    next: (resposta) => {
+      if (resposta && resposta.features && resposta.features.length > 0) {
+        const props = resposta.features[0].properties;
+        
+        const rua = props.street || props.name || 'Rua não cadastrada';
+        const bairro = props.district || props.suburb || props.city || 'Blumenau';
+        
+        item.endereco = `${rua} - ${bairro}`;
+      } else {
+        item.endereco = 'Blumenau';
+      }
+      this.cdr.detectChanges();
+    },
+    error: (err) => {
+      console.error('Erro na busca de endereço:', err);
+      item.endereco = 'Endereço Indisponível';
+      this.cdr.detectChanges();
+    }
+  });
+}
+
+  abrirNoMapa(lat: string, lng: string): void {
+    if (!lat || !lng) return;
+    const urlGoogle = `https://www.google.com/maps?q=${lat},${lng}`;
+    window.open(urlGoogle, '_blank');
   }
 
   formatarCategoria(categoria: string): string {
@@ -67,14 +111,16 @@ export class ListaOcorrenciasComponent implements OnInit {
     this.relatoService.atualizarStatus(item.id, novoStatus).subscribe({
       next: () => {
         item.status = novoStatus; 
-        console.log('Status updated com sucesso!');
-        
-        
         this.cdr.detectChanges(); 
       },
       error: (erro) => {
         console.error('Erro ao mudar status:', erro);
       }
     });
+  }
+
+  obterClasseStatus(status?: string): string {
+    if (!status) return 'pendente';
+    return status.toLowerCase().replace(/\s+/g, '-');
   }
 }

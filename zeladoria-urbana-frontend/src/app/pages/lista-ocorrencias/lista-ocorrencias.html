@@ -1,50 +1,71 @@
 <div class="list-container">
-  <h2 class="page-title">Ocorrências Registradas</h2>
-  <p class="page-subtitle">Consulte e gerencie todos os relatos de problemas urbanos em Blumenau.</p>
+  
+  <div class="filtros-container">
+    <div class="grupo-filtros">
+      <input type="text" placeholder="Bairro: Ex: Centro" class="input-filtro" />
+      <input type="text" placeholder="Filtro por rua..." class="input-filtro" />
+      <select class="select-filtro">
+        <option value="">Filtro por ocorrido (Todas)</option>
+        <option value="buraco">Buraco na Via</option>
+        <option value="iluminacao">Iluminação Pública</option>
+        <option value="vazamento">Vazamento Água/Esgoto</option>
+        <option value="lixo">Descarte de Lixo</option>
+      </select>
+    </div>
 
-  <div class="table-responsive">
-    <table class="ocorrencias-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Categoria</th>
-          <th>Descrição</th>
-          <th>Localização (Lat / Lng)</th>
-          <th>Data de Registro</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngIf="ocorrencias.length === 0">
-          <td colspan="6" class="no-data">Nenhuma ocorrência encontrada.</td>
-        </tr>
+    <button type="button" class="btn-cadastrar">+ Cadastrar</button>
+  </div>
 
-        <tr *ngFor="let item of ocorrencias">
-          <td><strong>#{{ item.id }}</strong></td>
-          <td>
-            <span class="badge-categoria" [ngClass]="item.categoria">
-              {{ formatarCategoria(item.categoria) }}
-            </span>
-          </td>
-          <td class="col-descricao" [title]="item.descricao">{{ item.descricao }}</td>
-          <td class="col-coords">
-            <div><code>{{ item.latitude }}</code></div>
-            <div><code>{{ item.longitude }}</code></div>
-          </td>
-          <td>{{ item.dataCriacao }}</td>
-          <td>
-            <select 
-              [value]="item.status || 'Pendente'" 
-              (change)="mudarStatus(item, $any($event.target).value)"
-              style="padding: 5px; border-radius: 4px; border: 1px solid #ccc; background-color: white; cursor: pointer;"
-            >
-              <option value="Pendente">Pendente</option>
-              <option value="Em Andamento">Em Andamento</option>
-              <option value="Resolvido">Resolvido</option>  
-            </select>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="lista-cards">
+    
+    <div class="card-horizontal" *ngFor="let item of ocorrencias" [ngClass]="obterClasseStatus(item.status)">
+      
+      <div class="col-esquerda">
+        <span class="badge-categoria" [ngClass]="item.categoria">
+          {{ formatarCategoria(item.categoria) }}
+        </span>
+
+        <div class="box-foto">
+          <img 
+            *ngIf="item.foto && item.foto !== 'Sem Foto' && !item.foto.includes('placeholder')" 
+            [src]="item.foto" 
+            alt="Foto da ocorrência" 
+          />
+          <div *ngIf="!item.foto || item.foto === 'Sem Foto' || item.foto.includes('placeholder')" class="placeholder-icone">
+            <span class="texto-sem-foto">Sem Foto</span>
+          </div>
+        </div>
+
+        <span class="badge-tempo">{{ item.dataCriacao || '21/07/2026' }}</span>
+      </div>
+
+      <div class="col-meio">
+        <h3 class="titulo-rua">{{ item.endereco || 'Buscando endereço...' }}</h3>
+        <div class="box-descricao">
+          <p>{{ item.descricao }}</p>
+        </div>
+      </div>
+
+      <div class="col-direita">
+        <div class="box-status">
+          <label>Status / Visibilidade:</label>
+          <select 
+            [value]="item.status || 'Pendente'" 
+            (change)="mudarStatus(item, $any($event.target).value)"
+            class="select-status"
+          >
+            <option value="Pendente">Pendente</option>
+            <option value="Em Andamento">Em Andamento</option>
+            <option value="Resolvido">Concluído</option>  
+          </select>
+        </div>
+
+        <button type="button" class="btn-visualizar" (click)="abrirNoMapa(item.latitude, item.longitude)">
+          Ver no Mapa
+        </button>
+      </div>
+
+    </div>
+
   </div>
 </div>
