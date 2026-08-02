@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { RelatoService } from '../../services/relato.service';
 
 interface Relato {
@@ -25,33 +25,14 @@ interface Relato {
 })
 export class ListaOcorrenciasComponent implements OnInit {
   public ocorrencias: Relato[] = [];
+  public ocorrenciasFiltradas: Relato[] = [];
+
+  public filtroBairro: string = '';
+  public filtroRua: string = '';
+  public filtroCategoria: string = '';
+
   public paginaAtual: number = 1;
   public itensPorPagina: number = 5;
-
-  obterTotalPaginas(): number {
-    if (!this.ocorrencias || this.ocorrencias.length === 0) {
-      return 1;
-    }
-    return Math.ceil(this.ocorrencias.length / this.itensPorPagina);
-  }
-
-  obterOcorrenciasPaginadas(): Relato[] {
-    const inicio = (this.paginaAtual - 1) * this.itensPorPagina;
-    const fim = inicio + this.itensPorPagina;
-    return this.ocorrencias.slice(inicio, fim);
-  }
-
-  paginaAnterior(): void {
-    if (this.paginaAtual > 1) {
-      this.paginaAtual--;
-    }
-  }
-
-  proximaPagina(): void {
-    if (this.paginaAtual < this.obterTotalPaginas()) {
-      this.paginaAtual++;
-    }
-  }
 
   constructor(
     private relatoService: RelatoService,
@@ -67,7 +48,8 @@ export class ListaOcorrenciasComponent implements OnInit {
     this.relatoService.listarRelatos().subscribe({
       next: (dados: any) => {
         this.ocorrencias = dados;
-        
+        this.ocorrenciasFiltradas = [...dados]; 
+
         this.ocorrencias.forEach(item => {
           this.buscarEnderecoPorCoordenadas(item);
         });
@@ -80,47 +62,105 @@ export class ListaOcorrenciasComponent implements OnInit {
     });
   }
 
-buscarEnderecoPorCoordenadas(item: Relato): void {
-  if (!item.latitude || !item.longitude) {
-    item.endereco = 'Coordenadas não informadas';
-    return;
+  aplicarFiltros(): void {
+    this.paginaAtual = 1; 
+
+    this.ocorrenciasFiltradas = this.ocorrencias.filter(item => {
+      const endereco = (item.endereco || '').toLowerCase();
+      const categoria = (item.categoria || '').toLowerCase();
+      const categoriaFormatada = this.formatarCategoria(item.categoria).toLowerCase();
+
+      const termoBairro = this.filtroBairro.trim().toLowerCase();
+      const termoRua = this.filtroRua.trim().toLowerCase();
+      const termoCategoria = this.filtroCategoria.trim().toLowerCase();
+
+      const bateuBairro = !termoBairro || endereco.includes(termoBairro);
+      const bateuRua = !termoRua || endereco.includes(termoRua);
+      
+      const bateuCategoria = !termoCategoria || 
+        categoria === termoCategoria || 
+        categoriaFormatada.includes(termoCategoria);
+
+      return bateuBairro && bateuRua && bateuCategoria;
+    });
+
+    this.cdr.detectChanges();
+  }
+  limparFiltros(): void {
+    this.filtroBairro = '';
+    this.filtroRua = '';
+    this.filtroCategoria = '';
+    this.paginaAtual = 1;
+    this.ocorrenciasFiltradas = [...this.ocorrencias];
+    this.cdr.detectChanges();
   }
 
-  const lat = String(item.latitude).trim();
-  const lon = String(item.longitude).trim();
+  obterOcorrenciasPaginadas(): Relato[] {
+    const inicio = (this.paginaAtual - 1) * this.itensPorPagina;
+    const fim = inicio + this.itensPorPagina;
+    return this.ocorrenciasFiltradas.slice(inicio, fim);
+  }
 
-  const url = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`;
-
-  this.http.get<any>(url).subscribe({
-    next: (resposta) => {
-      if (resposta && resposta.features && resposta.features.length > 0) {
-        const props = resposta.features[0].properties;
-
-        const rua = props.name || props.street || props.road || 'Rua não cadastrada';
-
-        let bairro = props.locality || props.suburb || props.neighbourhood || props.quarter;
-
-        if (!bairro) {
-          bairro = props.district || props.city || 'Blumenau';
-        }
-
-        if (bairro === 'Centro' && props.locality) {
-          bairro = props.locality;
-        }
-
-        item.endereco = `${rua} - ${bairro}`;
-      } else {
-        item.endereco = 'Endereço Indisponível';
-      }
-      this.cdr.detectChanges();
-    },
-    error: (err) => {
-      console.error('Erro na busca de endereço:', err);
-      item.endereco = 'Endereço Indisponível';
-      this.cdr.detectChanges();
+  obterTotalPaginas(): number {
+    if (!this.ocorrenciasFiltradas || this.ocorrenciasFiltradas.length === 0) {
+      return 1;
     }
-  });
-}
+    return Math.ceil(this.ocorrenciasFiltradas.length / this.itensPorPagina);
+  }
+
+  paginaAnterior(): void {
+    if (this.paginaAtual > 1) {
+      this.paginaAtual--;
+    }
+  }
+
+  proximaPagina(): void {
+    if (this.paginaAtual < this.obterTotalPaginas()) {
+      this.paginaAtual++;
+    }
+  }
+
+  buscarEnderecoPorCoordenadas(item: Relato): void {
+    if (!item.latitude || !item.longitude) {
+      item.endereco = 'Coordenadas não informadas';
+      return;
+    }
+
+    const lat = String(item.latitude).trim();
+    const lon = String(item.longitude).trim();
+
+    const url = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`;
+
+    this.http.get<any>(url).subscribe({
+      next: (resposta) => {
+        if (resposta && resposta.features && resposta.features.length > 0) {
+          const props = resposta.features[0].properties;
+          const rua = props.name || props.street || props.road || 'Rua não cadastrada';
+          let bairro = props.locality || props.suburb || props.neighbourhood || props.quarter;
+
+          if (!bairro) {
+            bairro = props.district || props.city || 'Blumenau';
+          }
+
+          if (bairro === 'Centro' && props.locality) {
+            bairro = props.locality;
+          }
+
+          item.endereco = `${rua} - ${bairro}`;
+        } else {
+          item.endereco = 'Endereço Indisponível';
+        }
+        
+        this.aplicarFiltros();
+      },
+      error: (err) => {
+        console.error('Erro na busca de endereço:', err);
+        item.endereco = 'Endereço Indisponível';
+        this.cdr.detectChanges();
+      }
+    });
+    
+  }
 
   abrirNoMapa(lat: string, lng: string): void {
     if (!lat || !lng) return;

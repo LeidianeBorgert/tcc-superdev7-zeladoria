@@ -2,19 +2,25 @@
   
   <div class="filtros-container">
     <div class="grupo-filtros">
-      <input type="text" placeholder="Bairro: Ex: Centro" class="input-filtro" />
-      <input type="text" placeholder="Filtro por rua..." class="input-filtro" />
-      <select class="select-filtro">
+      <input type="text" placeholder="Bairro: Ex: Centro" class="input-filtro" [(ngModel)]="filtroBairro" (keyup.enter)="aplicarFiltros()" />
+      <input type="text" placeholder="Filtro por rua..." class="input-filtro" [(ngModel)]="filtroRua" (keyup.enter)="aplicarFiltros()" />
+      <select class="select-filtro" [(ngModel)]="filtroCategoria">
         <option value="">Filtro por ocorrido (Todas)</option>
         <option value="buraco">Buraco na Via</option>
         <option value="iluminacao">Iluminação Pública</option>
         <option value="vazamento">Vazamento Água/Esgoto</option>
         <option value="lixo">Descarte de Lixo</option>
+        <option value="asfalto">Asfalto Danificado</option>
+        <option value="calçada">Calçada Danificada / Obstáculo</option>
       </select>
     </div>
-
-    <button type="button" class="btn-cadastrar">+ Cadastrar</button>
+    
+    <div class="grupo-botoes-filtro">
+      <button type="button" class="btn-cadastrar" (click)="aplicarFiltros()">Buscar</button>
+      <button type="button" class="btn-limpar" (click)="limparFiltros()">Limpar</button>
+    </div>
   </div>
+
 
   <div class="lista-cards">
     
@@ -67,8 +73,12 @@
 
     </div>
 
+    <div *ngIf="ocorrenciasFiltradas.length === 0" style="text-align: center; padding: 40px; color: #64748b;">
+      <p>Nenhuma ocorrência encontrada com esses filtros.</p>
+    </div>
+
   </div>
-  <div class="paginacao-container" *ngIf="ocorrencias.length > 0">
+  <div class="paginacao-container" *ngIf="ocorrenciasFiltradas.length > 0">
     <button 
       type="button" 
       class="btn-paginacao" 
