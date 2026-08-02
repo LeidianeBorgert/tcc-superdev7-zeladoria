@@ -1,6 +1,7 @@
-import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core'; 
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, ChangeDetectorRef, ViewChild, ElementRef, inject } from '@angular/core'; 
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common'; 
+import { HttpClient } from '@angular/common/http';
 import { RelatoService } from '../../services/relato.service';
 import * as L from 'leaflet';
 
@@ -17,7 +18,7 @@ L.Marker.prototype.options.icon = L.icon({
 @Component({
   selector: 'app-novo-relato',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule], 
+  imports: [CommonModule, ReactiveFormsModule,FormsModule], 
   templateUrl: './novo-relato.html',
   styleUrl: './novo-relato.scss',
   encapsulation: ViewEncapsulation.None
@@ -26,6 +27,8 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
 
   @ViewChild('nomeInput') nomeInput!: ElementRef;
 
+  private http = inject(HttpClient);
+
   private map: L.Map | undefined;
   private marker: L.Marker | undefined;
   
@@ -33,6 +36,8 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
   public ehAnonimo: boolean = false;
   public fotoPreview: string | null = null;
   public fotoArquivo: File | null = null;
+
+  public termoBusca: string = '';
 
   public relatoForm: FormGroup;
   public displayLatitude: string = '-26.9166';
@@ -44,13 +49,53 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
       descricao: ['', [Validators.required, Validators.minLength(10)]],
       latitude: ['-26.9166', Validators.required],
       longitude: ['-49.0661', Validators.required],
-      nomeUsuario: ['Anonymous'], 
+      nomeUsuario: ['', Validators.required], 
       foto: ['']
     });
   }
+public buscarEnderecoNoMapa(): void {
+    if (!this.termoBusca || !this.termoBusca.trim()) return;
 
+    const buscaComCidade = `${this.termoBusca}, Blumenau`;
+    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(buscaComCidade)}&limit=1`;
+
+    this.http.get<any>(url).subscribe({
+      next: (resposta: any) => {
+        if (resposta && resposta.features && resposta.features.length > 0) {
+          const [lng, lat] = resposta.features[0].geometry.coordinates;
+
+          this.atualizarCoordenadas(lat, lng);
+
+          if (this.map) {
+            this.map.setView([lat, lng], 16);
+          }
+
+          if (this.marker) {
+            this.marker.setLatLng([lat, lng]);
+          }
+        } else {
+          alert('Endereço não encontrado em Blumenau. Tente digitar com mais detalhes!');
+        }
+      },
+      error: (err: any) => {
+        console.error('Erro na pesquisa de endereço:', err);
+        alert('Erro ao realizar a busca de endereço.');
+      }
+    });
+  }
  
   public proximaEtapa(): void {
+
+    if (this.etapaAtual === 2) {
+      const categoriaInvalida = this.relatoForm.get('categoria')?.invalid;
+      const descricaoInvalida = this.relatoForm.get('descricao')?.invalid;
+
+      if (categoriaInvalida || descricaoInvalida) {
+        this.relatoForm.get('categoria')?.markAsTouched();
+        this.relatoForm.get('descricao')?.markAsTouched();
+        return;
+      }
+    }
     if (this.etapaAtual < 4) {
       this.etapaAtual = this.etapaAtual + 1;
       
@@ -81,11 +126,14 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
 
   public definirAnonimo(statusAnonimo: boolean): void {
     this.ehAnonimo = statusAnonimo;
+    const nomeControl = this.relatoForm.get('nomeUsuario');
+
     if (statusAnonimo === true) {
-      this.relatoForm.patchValue({ nomeUsuario: 'Anonymous' });
+      nomeControl?.clearValidators();
+      nomeControl?.setValue('Anonymous');
     } else {
-      this.relatoForm.patchValue({ nomeUsuario: '' });
-      
+      nomeControl?.setValidators([Validators.required]);
+      nomeControl?.setValue('');
 
       setTimeout(() => {
         if (this.nomeInput) {
@@ -93,9 +141,10 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
         }
       }, 100);
     }
+
+    nomeControl?.updateValueAndValidity();
     this.cdr.detectChanges();
   }
-
   public aoSelecionarFoto(event: any): void {
     const arquivo = event.target.files[0];
     if (arquivo) {
@@ -172,29 +221,34 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  public enviarRelatoCompleto(): void {
-    if (this.relatoForm.valid) {
-      const dadosDoRelato = this.relatoForm.value;
-
-      this.relatoService.salvarRelato(dadosDoRelato).subscribe({
-        next: (resposta) => {
-          alert('Relato salvo com sucesso no banco de dados!');
-          this.relatoForm.reset(); 
-          this.etapaAtual = 1; 
-          this.fotoPreview = null;
-          this.fotoArquivo = null;
-          this.ehAnonimo = false;
-          
-          setTimeout(() => {
-            this.initMap();
-          }, 200);
-        },
-        error: (erro) => {
-          console.error('Erro ao conectar na API:', erro);
-          alert('Erro ao salvar o relato.');
-        }
-      });
+public enviarRelatoCompleto(): void {
+    if (this.relatoForm.invalid) {
+      this.relatoForm.markAllAsTouched();
+      return;
     }
+
+    const dadosDoRelato = this.relatoForm.value;
+
+    this.relatoService.salvarRelato(dadosDoRelato).subscribe({
+      next: (resposta: any) => {
+        alert('Relato salvo com sucesso no banco de dados!');
+        this.relatoForm.reset(); 
+        this.etapaAtual = 1; 
+        this.fotoPreview = null;
+        this.fotoArquivo = null;
+        this.ehAnonimo = false;
+        
+        this.definirAnonimo(false);
+
+        setTimeout(() => {
+          this.initMap();
+        }, 200);
+      },
+      error: (erro: any) => {
+        console.error('Erro ao conectar na API:', erro);
+        alert('Erro ao salvar o relato.');
+      }
+    });
   }
 
   ngOnDestroy(): void {

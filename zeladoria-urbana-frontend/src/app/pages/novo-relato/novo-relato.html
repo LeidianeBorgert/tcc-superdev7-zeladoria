@@ -17,8 +17,21 @@
     <div *ngIf="etapaAtual === 1" class="etapa-card">
       <h2>Confirme a Localização</h2>
       <p>Arraste o marcador no mapa exatamente sobre o problema urbano.</p>
+      <div class="box-busca-endereco" style="display: flex; gap: 8px; margin-bottom: 15px;">
+        <input 
+          type="text" 
+          placeholder="Digite a rua ou bairro (Ex: Rua Ângela Grassmann)" 
+          [(ngModel)]="termoBusca"
+          [ngModelOptions]="{standalone: true}"
+          (keyup.enter)="buscarEnderecoNoMapa()"
+          class="input-padrao"
+          style="flex: 1;"
+        />
+        <button type="button" (click)="buscarEnderecoNoMapa()" class="btn-proximo" style="white-space: nowrap;">
+          Buscar
+        </button>
+      </div>
       
-      <!-- O seu mapa Leaflet original -->
       <div id="map" style="height: 350px; border-radius: 8px; margin-bottom: 20px;"></div>
 
       <div class="coordenadas-preview">
@@ -43,16 +56,33 @@
           <option value="lixo">Descarte de Lixo</option>
           <option value="calçada">Calçada Danificada</option>
         </select>
+
+      <small class="mensagem-erro" *ngIf="relatoForm.get('categoria')?.touched && relatoForm.get('categoria')?.invalid">
+          Por favor, selecione uma categoria.
+        </small>
       </div>
 
       <div class="campo-grupo">
         <label>Descrição do Problema:</label>
         <textarea formControlName="descricao" placeholder="Descreva os detalhes aqui..." class="textarea-padrao"></textarea>
+
+        <small class="mensagem-erro" *ngIf="relatoForm.get('descricao')?.touched && relatoForm.get('descricao')?.hasError('required')">
+          A descrição é obrigatória.
+        </small>
+        <small class="mensagem-erro" *ngIf="relatoForm.get('descricao')?.touched && relatoForm.get('descricao')?.hasError('minlength')">
+          A descrição deve ter pelo menos 10 caracteres.
+        </small>
       </div>
 
       <div class="botoes-grupo">
         <button type="button" class="btn-voltar" (click)="etapaAnterior()">Voltar</button>
-        <button type="button" class="btn-proximo" (click)="proximaEtapa()">Ir para Mídia</button>
+        <button 
+          type="button" 
+          class="btn-proximo" 
+          (click)="proximaEtapa()" 
+          [disabled]="relatoForm.get('categoria')?.invalid || relatoForm.get('descricao')?.invalid">
+          Ir para Mídia
+        </button>
       </div>
     </div>
 
@@ -92,16 +122,19 @@
           Enviar como Anônimo
         </label>
       </div>
-      <div class="campo-grupo">
-        <label for="nomeCompleto">Seu Nome Completo:</label>
+      <div class="campo-grupo" *ngIf="!ehAnonimo">
+        <label for="nomeCompleto">Seu Nome Completo: *</label>
         <input 
-        #nomeInput
-        id="nomeCompleto"
-        type="text" 
-        class="input-padrao" 
-        formControlName="nome" 
-        placeholder="Digite seu nome..."
-         />
+          #nomeInput
+          id="nomeCompleto"
+          type="text" 
+          class="input-padrao" 
+          formControlName="nomeUsuario" 
+          placeholder="Digite seu nome..."
+        />
+        <small class="mensagem-erro" *ngIf="relatoForm.get('nomeUsuario')?.touched && relatoForm.get('nomeUsuario')?.invalid">
+          Por favor, digite seu nome ou selecione a opção "Enviar como Anônimo".
+        </small>
       </div>
 
       <div class="botoes-grupo">

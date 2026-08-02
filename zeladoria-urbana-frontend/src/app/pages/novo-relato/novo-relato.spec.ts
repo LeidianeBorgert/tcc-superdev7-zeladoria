@@ -1,17 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NovoRelatoComponent } from './novo-relato';
 
-import { NovoRelato } from './novo-relato';
-
-describe('NovoRelato', () => {
-  let component: NovoRelato;
-  let fixture: ComponentFixture<NovoRelato>;
+describe('NovoRelatoComponent', () => {
+  let component: NovoRelatoComponent;
+  let fixture: ComponentFixture<NovoRelatoComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [NovoRelato],
+      imports: [NovoRelatoComponent],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(NovoRelato);
+    fixture = TestBed.createComponent(NovoRelatoComponent);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });
