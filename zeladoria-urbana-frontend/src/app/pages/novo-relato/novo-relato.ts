@@ -49,7 +49,7 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
       descricao: ['', [Validators.required, Validators.minLength(10)]],
       latitude: ['-26.9166', Validators.required],
       longitude: ['-49.0661', Validators.required],
-      nomeUsuario: ['', Validators.required], 
+      nomeUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]], 
       foto: ['']
     });
   }
@@ -132,7 +132,7 @@ public buscarEnderecoNoMapa(): void {
       nomeControl?.clearValidators();
       nomeControl?.setValue('Anonymous');
     } else {
-      nomeControl?.setValidators([Validators.required]);
+      nomeControl?.setValidators([Validators.required, Validators.minLength(3), Validators.maxLength(100)]);
       nomeControl?.setValue('');
 
       setTimeout(() => {

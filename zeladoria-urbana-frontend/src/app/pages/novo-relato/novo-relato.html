@@ -135,6 +135,9 @@
         <small class="mensagem-erro" *ngIf="relatoForm.get('nomeUsuario')?.touched && relatoForm.get('nomeUsuario')?.invalid">
           Por favor, digite seu nome ou selecione a opção "Enviar como Anônimo".
         </small>
+        <small class="mensagem-erro" *ngIf="relatoForm.get('nomeUsuario')?.touched && relatoForm.get('nomeUsuario')?.hasError('minlength')">
+          O nome deve ter pelo menos 3 caracteres.
+        </small>
       </div>
 
       <div class="botoes-grupo">
