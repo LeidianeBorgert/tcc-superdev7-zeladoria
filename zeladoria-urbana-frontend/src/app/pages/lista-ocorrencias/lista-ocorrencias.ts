@@ -25,6 +25,33 @@ interface Relato {
 })
 export class ListaOcorrenciasComponent implements OnInit {
   public ocorrencias: Relato[] = [];
+  public paginaAtual: number = 1;
+  public itensPorPagina: number = 5;
+
+  obterTotalPaginas(): number {
+    if (!this.ocorrencias || this.ocorrencias.length === 0) {
+      return 1;
+    }
+    return Math.ceil(this.ocorrencias.length / this.itensPorPagina);
+  }
+
+  obterOcorrenciasPaginadas(): Relato[] {
+    const inicio = (this.paginaAtual - 1) * this.itensPorPagina;
+    const fim = inicio + this.itensPorPagina;
+    return this.ocorrencias.slice(inicio, fim);
+  }
+
+  paginaAnterior(): void {
+    if (this.paginaAtual > 1) {
+      this.paginaAtual--;
+    }
+  }
+
+  proximaPagina(): void {
+    if (this.paginaAtual < this.obterTotalPaginas()) {
+      this.paginaAtual++;
+    }
+  }
 
   constructor(
     private relatoService: RelatoService,

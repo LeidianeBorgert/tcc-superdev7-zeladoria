@@ -18,8 +18,8 @@
 
   <div class="lista-cards">
     
-    <div class="card-horizontal" *ngFor="let item of ocorrencias" [ngClass]="obterClasseStatus(item.status)">
-      
+    <div class="card-horizontal" *ngFor="let item of obterOcorrenciasPaginadas()" [ngClass]="obterClasseStatus(item.status)">
+
       <div class="col-esquerda">
         <span class="badge-categoria" [ngClass]="item.categoria">
           {{ formatarCategoria(item.categoria) }}
@@ -68,4 +68,26 @@
     </div>
 
   </div>
+  <div class="paginacao-container" *ngIf="ocorrencias.length > 0">
+    <button 
+      type="button" 
+      class="btn-paginacao" 
+      (click)="paginaAnterior()" 
+      [disabled]="paginaAtual === 1">
+      ← Anterior
+    </button>
+
+    <span class="texto-paginacao">
+      Página <strong>{{ paginaAtual }}</strong> de <strong>{{ obterTotalPaginas() }}</strong>
+    </span>
+
+    <button 
+      type="button" 
+      class="btn-paginacao" 
+      (click)="proximaPagina()" 
+      [disabled]="paginaAtual === obterTotalPaginas()">
+      Próximo →
+    </button>
+  </div>
+
 </div>
