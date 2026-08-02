@@ -68,13 +68,22 @@ buscarEnderecoPorCoordenadas(item: Relato): void {
     next: (resposta) => {
       if (resposta && resposta.features && resposta.features.length > 0) {
         const props = resposta.features[0].properties;
-        
-        const rua = props.street || props.name || 'Rua não cadastrada';
-        const bairro = props.district || props.suburb || props.city || 'Blumenau';
-        
+
+        const rua = props.name || props.street || props.road || 'Rua não cadastrada';
+
+        let bairro = props.locality || props.suburb || props.neighbourhood || props.quarter;
+
+        if (!bairro) {
+          bairro = props.district || props.city || 'Blumenau';
+        }
+
+        if (bairro === 'Centro' && props.locality) {
+          bairro = props.locality;
+        }
+
         item.endereco = `${rua} - ${bairro}`;
       } else {
-        item.endereco = 'Blumenau';
+        item.endereco = 'Endereço Indisponível';
       }
       this.cdr.detectChanges();
     },
