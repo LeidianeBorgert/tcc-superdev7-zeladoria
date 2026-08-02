@@ -54,7 +54,6 @@
       letter-spacing: 0.5px;
     }
 
-    
     &.card-novos {
       border-left-color: #007bff; 
       
@@ -77,6 +76,30 @@
       .card-value {
         color: #28a745;
       }
+    }
+  }
+
+  .grafico-card {
+    background: #ffffff;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-top: 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+    .grafico-title {
+      margin: 0 0 1.5rem 0;
+      font-size: 1.2rem;
+      color: #333;
+      font-weight: 700;
+    }
+
+    .canvas-container {
+      position: relative;
+      height: 380px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   }
 }

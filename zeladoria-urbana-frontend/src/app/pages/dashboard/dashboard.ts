@@ -1,6 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RelatoService } from '../../services/relato.service';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 @Component({
   selector: 'app-dashboard',
@@ -10,12 +13,17 @@ import { RelatoService } from '../../services/relato.service';
   styleUrl: './dashboard.scss'
 })
 export class DashboardComponent implements OnInit {
+  @ViewChild('graficoPolar') private canvasRef!: ElementRef;
+  private chart: any;
 
-  public totalNovos: number = 3; 
-  public emAndamento: number = 5;  
-  public resolvidos: number = 28;  
+  public totalNovos: number = 0; 
+  public emAndamento: number = 0;  
+  public resolvidos: number = 0; 
 
-  constructor(private relatoService: RelatoService) {}
+  constructor(
+    private relatoService: RelatoService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.carregarContadores();
@@ -23,16 +31,78 @@ export class DashboardComponent implements OnInit {
 
   private carregarContadores(): void {
     this.relatoService.listarRelatos().subscribe({
-      next: (dados) => {
-       
+      next: (dados: any[]) => {
         if (dados) {
-          this.totalNovos = dados.length;
+          this.totalNovos = dados.filter(r => !r.status || r.status === 'Pendente').length;
+          this.emAndamento = dados.filter(r => r.status === 'Em Andamento').length;
+          this.resolvidos = dados.filter(r => r.status === 'Resolvido' || r.status === 'Concluído').length;
+
+          this.montarGraficoCategorias(dados);
         }
+        this.cdr.detectChanges();
       },
       error: (erro) => {
-   
         console.warn('API Offline no Dashboard.');
       }
     });
+  }
+
+  private montarGraficoCategorias(relatos: any[]): void {
+    const contagemCategorias: { [key: string]: number } = {};
+
+    relatos.forEach(item => {
+      const cat = this.formatarCategoria(item.categoria || 'Outros');
+      contagemCategorias[cat] = (contagemCategorias[cat] || 0) + 1;
+    });
+
+    const labels = Object.keys(contagemCategorias);
+    const valores = Object.values(contagemCategorias);
+
+    if (this.chart) {
+      this.chart.destroy();
+    }
+
+    if (!this.canvasRef) return;
+
+    this.chart = new Chart(this.canvasRef.nativeElement, {
+      type: 'polarArea',
+      data: {
+        labels: labels.length ? labels : ['Sem dados'],
+        datasets: [{
+          label: 'Quantidade de Ocorrências',
+          data: valores.length ? valores : [0],
+          backgroundColor: [
+            'rgba(37, 99, 235, 0.7)',   // Azul
+            'rgba(245, 158, 11, 0.7)',  // Laranja
+            'rgba(16, 185, 129, 0.7)',  // Verde
+            'rgba(239, 68, 68, 0.7)',   // Vermelho
+            'rgba(139, 92, 246, 0.7)',  // Roxo
+            'rgba(236, 72, 153, 0.7)'   // Rosa
+          ],
+          borderWidth: 1
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            position: 'right'
+          }
+        }
+      }
+    });
+  }
+
+  private formatarCategoria(categoria: string): string {
+    const nomes: { [key: string]: string } = {
+      'asfalto': 'Asfalto Danificado',
+      'buraco': 'Buraco na Via',
+      'vazamento': 'Vazamento de Água/Esgoto',
+      'iluminacao': 'Iluminação Pública',
+      'lixo': 'Descarte de Lixo',
+      'calçada': 'Calçada Danificada / Obstáculo' 
+    };
+    return nomes[categoria] || categoria;
   }
 }
