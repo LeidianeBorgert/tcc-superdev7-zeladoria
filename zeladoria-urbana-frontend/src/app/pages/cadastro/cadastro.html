@@ -1,0 +1,38 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <h2>Criar Conta</h2>
+    <p class="auth-subtitle">Zeladoria Urbana - Blumenau</p>
+
+    <div *ngIf="erroMensagem" class="alerta-erro">
+      {{ erroMensagem }}
+    </div>
+
+    <div *ngIf="sucessoMensagem" class="alerta-sucesso">
+      {{ sucessoMensagem }}
+    </div>
+
+    <form (ngSubmit)="cadastrar()">
+      <div class="campo-grupo">
+        <label>Nome Completo</label>
+        <input type="text" [(ngModel)]="nome" name="nome" placeholder="Seu nome" required />
+      </div>
+
+      <div class="campo-grupo">
+        <label>E-mail</label>
+        <input type="email" [(ngModel)]="email" name="email" placeholder="seu@email.com" required />
+      </div>
+
+      <div class="campo-grupo">
+        <label>Senha</label>
+        <input type="password" [(ngModel)]="senha" name="senha" placeholder="Crie uma senha" required />
+      </div>
+
+      <button type="submit" class="btn-entrar">Cadastrar</button>
+    </form>
+
+    <div class="auth-footer">
+      <span>Já possui conta?</span>
+      <a routerLink="/login">Faça Login</a>
+    </div>
+  </div>
+</div>
