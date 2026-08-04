@@ -13,6 +13,8 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
         <a routerLink="/dashboard" routerLinkActive="active">Painel Geral</a>
         <a routerLink="/novo-relato" routerLinkActive="active">Novo Relato</a>
         <a routerLink="/lista-ocorrencias" routerLinkActive="active">Ocorrências</a>
+        <a routerLink="/login" routerLinkActive="active">Login</a>
+        <a routerLink="/cadastro" routerLinkActive="active">Cadastro</a>
       </nav>
     </header>
 
