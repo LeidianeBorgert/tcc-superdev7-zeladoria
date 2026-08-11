@@ -1,3 +1,10 @@
+<div 
+  *ngIf="mensagemNotificacao" 
+  class="toast-notificacao" 
+  [ngClass]="tipoNotificacao">
+  <span class="icone">{{ tipoNotificacao === 'sucesso' ? '✓' : '✕' }}</span>
+  <span class="texto">{{ mensagemNotificacao }}</span>
+</div>
 <div class="container-novo-relato" style="margin-top: 80px; padding: 20px;">
 
   <div class="progresso-container">
@@ -119,7 +126,7 @@
           <span class="upload-hint">PNG, JPG ou JPEG (máx. 5MB)</span>
 
           <span *ngIf="nomeArquivoSelecionado" class="arquivo-nome" style="margin-top: 10px; font-weight: 600;">
-            📄 {{ nomeArquivoSelecionado }}
+             {{ nomeArquivoSelecionado }}
           </span>
         </label>
 

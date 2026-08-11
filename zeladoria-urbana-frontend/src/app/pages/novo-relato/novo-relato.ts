@@ -46,12 +46,16 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
 
   public nomeArquivoSelecionado: string = '';
 
+  public mensagemNotificacao: string | null = null;
+  public tipoNotificacao: 'sucesso' | 'erro' = 'sucesso';
+
   constructor(private fb: FormBuilder, private cdr: ChangeDetectorRef, private relatoService: RelatoService) {
     this.relatoForm = this.fb.group({
       categoria: ['', Validators.required],
       descricao: ['', [Validators.required, Validators.minLength(10)]],
       latitude: ['-26.9166', Validators.required],
       longitude: ['-49.0661', Validators.required],
+      endereco: [''], // Adicionado o campo endereco no Form
       nomeUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]], 
       foto: ['']
     });
@@ -205,7 +209,7 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
         }
       });
 
-      this.cdr.detectChanges();
+      this.atualizarCoordenadas(-26.9166, -49.0661);
 
     } catch (error) {
       console.error('Erro ao inicializar o Leaflet:', error);
@@ -224,7 +228,32 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
       longitude: lngFormatada
     });
 
-    this.cdr.detectChanges();
+    this.obterEnderecoTexto(latFormatada, lngFormatada);
+  }
+
+  private obterEnderecoTexto(lat: string, lon: string): void {
+    const url = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`;
+
+    this.http.get<any>(url).subscribe({
+      next: (resposta: any): void => {
+        if (resposta && resposta.features && resposta.features.length > 0) {
+          const props = resposta.features[0].properties;
+          const rua = props.name || props.street || props.road || 'Rua não cadastrada';
+          let bairro = props.locality || props.suburb || props.neighbourhood || 'Blumenau';
+
+          const enderecoCompleto = `${rua} - ${bairro}`;
+          this.relatoForm.patchValue({ endereco: enderecoCompleto });
+        } else {
+          this.relatoForm.patchValue({ endereco: `Lat: ${lat}, Lon: ${lon}` });
+        }
+        this.cdr.detectChanges();
+      },
+      error: (): void => {
+        // Fallback em caso de falha de conexão
+        this.relatoForm.patchValue({ endereco: `Lat: ${lat}, Lon: ${lon}` });
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   public enviarRelatoCompleto(): void {
@@ -237,7 +266,8 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
 
     this.relatoService.salvarRelato(dadosDoRelato).subscribe({
       next: (resposta: any): void => {
-        alert('Relato salvo com sucesso no banco de dados!');
+        this.exibirNotificacao('Relato salvo com sucesso no banco de dados!', 'sucesso');
+        
         this.relatoForm.reset(); 
         this.etapaAtual = 1; 
         this.fotoPreview = null;
@@ -253,9 +283,20 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
       },
       error: (erro: any): void => {
         console.error('Erro ao conectar na API:', erro);
-        alert('Erro ao salvar o relato.');
+        this.exibirNotificacao('Erro ao salvar o relato. Tente novamente!', 'erro');
       }
     });
+  }
+
+  private exibirNotificacao(mensagem: string, tipo: 'sucesso' | 'erro'): void {
+    this.mensagemNotificacao = mensagem;
+    this.tipoNotificacao = tipo;
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.mensagemNotificacao = null;
+      this.cdr.detectChanges();
+    }, 4000); 
   }
 
   ngOnDestroy(): void {
