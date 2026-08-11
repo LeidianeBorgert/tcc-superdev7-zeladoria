@@ -5,6 +5,7 @@
   <span class="icone">{{ tipoNotificacao === 'sucesso' ? '✓' : '✕' }}</span>
   <span class="texto">{{ mensagemNotificacao }}</span>
 </div>
+
 <div class="container-novo-relato" style="margin-top: 80px; padding: 20px;">
 
   <div class="progresso-container">
@@ -33,6 +34,9 @@
         />
         <button type="button" (click)="buscarEnderecoNoMapa()" class="btn-proximo" style="white-space: nowrap;">
           Buscar
+        </button>
+        <button type="button" (click)="limparBusca()" class="btn-voltar" style="white-space: nowrap;">
+          Limpar
         </button>
       </div>
 

@@ -31,6 +31,15 @@ export class ListaOcorrenciasComponent implements OnInit {
   public filtroRua: string = '';
   public filtroCategoria: string = '';
 
+  public categoriasOrdenadas = [
+    { value: 'asfalto', label: 'Asfalto Danificado' },
+    { value: 'buraco', label: 'Buraco na Via' },
+    { value: 'calçada', label: 'Calçada Danificada / Obstáculo' },
+    { value: 'lixo', label: 'Descarte de Lixo' },
+    { value: 'iluminacao', label: 'Iluminação Pública' },
+    { value: 'vazamento', label: 'Vazamento de Água/Esgoto' }
+  ].sort((a, b) => a.label.localeCompare(b.label, 'pt-BR'));
+
   public paginaAtual: number = 1;
   public itensPorPagina: number = 5;
 
@@ -110,10 +119,7 @@ export class ListaOcorrenciasComponent implements OnInit {
         if (resposta && resposta.address) {
           const addr = resposta.address;
           
-          // Mapeia o nome da via
           const rua: string = addr.road || addr.pedestrian || addr.street || addr.suburb || 'Rua não cadastrada';
-          
-          // Mapeia o bairro
           const bairro: string = addr.neighbourhood || addr.suburb || addr.city_district || addr.district || addr.city || 'Blumenau';
 
           item.endereco = `${rua} - ${bairro}`;

@@ -55,7 +55,7 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
       descricao: ['', [Validators.required, Validators.minLength(10)]],
       latitude: ['-26.9166', Validators.required],
       longitude: ['-49.0661', Validators.required],
-      endereco: [''], // Adicionado o campo endereco no Form
+      endereco: [''],
       nomeUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]], 
       foto: ['']
     });
@@ -107,6 +107,22 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
         alert('Erro ao realizar a busca de endereço.');
       }
     });
+  }
+
+  public limparBusca(): void {
+    this.termoBusca = '';
+    const latPadrao = -26.9166;
+    const lngPadrao = -49.0661;
+
+    if (this.map) {
+      this.map.setView([latPadrao, lngPadrao], 14);
+    }
+
+    if (this.marker) {
+      this.marker.setLatLng([latPadrao, lngPadrao]);
+    }
+
+    this.atualizarCoordenadas(latPadrao, lngPadrao);
   }
 
   public proximaEtapa(): void {
@@ -249,7 +265,6 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
         this.cdr.detectChanges();
       },
       error: (): void => {
-        // Fallback em caso de falha de conexão
         this.relatoForm.patchValue({ endereco: `Lat: ${lat}, Lon: ${lon}` });
         this.cdr.detectChanges();
       }
