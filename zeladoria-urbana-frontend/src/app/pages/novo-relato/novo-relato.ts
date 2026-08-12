@@ -41,15 +41,16 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
   public termoBusca: string = '';
 
   public relatoForm: FormGroup;
-  public displayLatitude: string = '-26.9166';
-  public displayLongitude: string = '-49.0661';
+  public displayLatitude: string = '-26.916600';
+  public displayLongitude: string = '-49.066100';
 
   public nomeArquivoSelecionado: string = '';
 
   public mensagemNotificacao: string | null = null;
   public tipoNotificacao: 'sucesso' | 'erro' = 'sucesso';
 
-  constructor(private fb: FormBuilder, private cdr: ChangeDetectorRef, private relatoService: RelatoService) {
+  constructor(private fb: FormBuilder, private cdr: ChangeDetectorRef, 
+    private relatoService: RelatoService) {
     this.relatoForm = this.fb.group({
       categoria: ['', Validators.required],
       descricao: ['', [Validators.required, Validators.minLength(10)]],

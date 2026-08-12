@@ -57,14 +57,10 @@
         <span class="badge-categoria" [ngClass]="item.categoria">
           {{ formatarCategoria(item.categoria) }}
         </span>
-
         <div class="box-foto">
-          <img 
-            *ngIf="item.foto && item.foto !== 'Sem Foto' && !item.foto.includes('placeholder')" 
-            [src]="item.foto" 
-            alt="Foto da ocorrência" 
-          />
-          <div *ngIf="!item.foto || item.foto === 'Sem Foto' || item.foto.includes('placeholder')" class="placeholder-icone">
+          <img  *ngIf="obterUrlFoto(item)"  [src]="obterUrlFoto(item)" alt="Foto da ocorrência" />
+          
+          <div *ngIf="!obterUrlFoto(item)" class="placeholder-icone">
             <span class="texto-sem-foto">Sem Foto</span>
           </div>
         </div>

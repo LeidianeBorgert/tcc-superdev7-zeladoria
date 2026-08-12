@@ -14,11 +14,12 @@ def obter_todos(db: Session):
             "latitude": r.latitude,
             "longitude": r.longitude,
             "dataCriacao": r.dataCriacao,  
-            "status": r.status
+            "status": r.status,
+            "foto": r.foto
         })
     return resultado
 
-def criar(db: Session, categoria: str, descricao: str, latitude: str, longitude: str):
+def criar(db: Session, categoria: str, descricao: str, latitude: str, longitude: str,foto: str = None):
     data_atual = datetime.now().strftime('%d/%m/%Y')
     novo_relato = Relato(
         categoria=categoria,
@@ -26,7 +27,8 @@ def criar(db: Session, categoria: str, descricao: str, latitude: str, longitude:
         latitude=latitude,
         longitude=longitude,
         dataCriacao=data_atual,
-        status="Pendente"
+        status="Pendente",
+        foto=foto
     )
     db.add(novo_relato)
     db.commit()
@@ -39,7 +41,8 @@ def criar(db: Session, categoria: str, descricao: str, latitude: str, longitude:
         "latitude": novo_relato.latitude,
         "longitude": novo_relato.longitude,
         "dataCriacao": novo_relato.dataCriacao,
-        "status": novo_relato.status
+        "status": novo_relato.status,
+        "foto": novo_relato.foto
     }
 
 def atualizar_status(db: Session, id: int, novo_status: str):

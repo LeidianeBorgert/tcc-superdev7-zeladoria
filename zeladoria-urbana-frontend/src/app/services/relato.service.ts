@@ -10,6 +10,7 @@ export interface Relato {
   longitude: string;
   dataCriacao?: string;
   status?: string;
+  foto?: string;
 }
 
 @Injectable({

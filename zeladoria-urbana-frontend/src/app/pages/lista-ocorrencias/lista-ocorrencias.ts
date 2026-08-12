@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { RelatoService } from '../../services/relato.service';
 
 interface Relato {
@@ -14,6 +14,7 @@ interface Relato {
   status?: string;
   endereco?: string;
   foto?: string;
+  imagem?: string;
 }
 
 @Component({
@@ -24,6 +25,8 @@ interface Relato {
   styleUrl: './lista-ocorrencias.scss'
 })
 export class ListaOcorrenciasComponent implements OnInit {
+  private readonly API_URL = 'http://localhost:8000';
+
   public ocorrencias: Relato[] = [];
   public ocorrenciasFiltradas: Relato[] = [];
 
@@ -76,6 +79,27 @@ export class ListaOcorrenciasComponent implements OnInit {
       }
     });
   }
+
+obterUrlFoto(item: Relato): string | null {
+  const foto = item.foto || item.imagem;
+
+  console.log('ID:', item.id, 'Foto vinda do backend:', foto);
+
+  if (!foto || foto === 'Sem Foto' || foto.includes('placeholder')) {
+    return null;
+  }
+
+  if (foto.startsWith('data:image') || foto.startsWith('http://') || foto.startsWith('https://')) {
+    return foto;
+  }
+
+  if (foto.includes('/') || foto.includes('\\') || foto.includes('.')) {
+    const caminhoFormatado = foto.startsWith('/') ? foto : `/${foto}`;
+    return `${this.API_URL}${caminhoFormatado}`;
+  }
+
+  return `data:image/jpeg;base64,${foto}`;
+}
 
   private processarFilaNominatim(indice: number): void {
     if (indice >= this.ocorrencias.length) return;

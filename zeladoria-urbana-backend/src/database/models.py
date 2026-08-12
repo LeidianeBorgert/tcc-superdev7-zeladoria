@@ -11,3 +11,4 @@ class Relato(Base):
     longitude = Column(String(50), nullable=False)
     dataCriacao = Column("dataCriacao", String(20), nullable=False)
     status = Column(String(50), nullable=False, default="Pendente")
+    foto = Column(String, nullable=True)

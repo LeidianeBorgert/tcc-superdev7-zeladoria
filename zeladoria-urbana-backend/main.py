@@ -1,8 +1,11 @@
+import os
 import hashlib
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware  
+from fastapi.staticfiles import StaticFiles  
 from sqlalchemy.orm import Session
 from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 from src.database.conexao import engine, Base, get_db
 import src.repositorios.relato_repositorio as repositorio
@@ -11,6 +14,12 @@ import src.repositorios.relato_repositorio as repositorio
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
+
+
+if not os.path.exists("uploads"):
+    os.makedirs("uploads")
+
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 
 app.add_middleware(
@@ -27,6 +36,8 @@ class RelatoCriarSchema(BaseModel):
     descricao: str
     latitude: str
     longitude: str
+    foto: Optional[str] = None  
+
 
 class StatusAtualizarSchema(BaseModel):
     status: str
@@ -50,15 +61,17 @@ def hash_senha(senha: str) -> str:
 def listar_todos_relatos(db: Session = Depends(get_db)):
     return repositorio.obter_todos(db)
 
-#CADASTRO 
+
+# CADASTRO 
 @app.post("/api/relatos", status_code=201)
 def cadastrar_novo_relato(dados: RelatoCriarSchema, db: Session = Depends(get_db)):
     return repositorio.criar(
-        db, 
-        dados.categoria, 
-        dados.descricao, 
-        dados.latitude, 
-        dados.longitude
+        db=db, 
+        categoria=dados.categoria, 
+        descricao=dados.descricao, 
+        latitude=dados.latitude, 
+        longitude=dados.longitude,
+        foto=dados.foto
     )
 
 # ATUALIZA STATUS
