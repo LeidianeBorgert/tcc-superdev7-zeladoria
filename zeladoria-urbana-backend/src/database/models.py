@@ -12,3 +12,4 @@ class Relato(Base):
     dataCriacao = Column("dataCriacao", String(20), nullable=False)
     status = Column(String(50), nullable=False, default="Pendente")
     foto = Column(String, nullable=True)
+    usuario_nome = Column(String, nullable=True, default="Anônimo") 

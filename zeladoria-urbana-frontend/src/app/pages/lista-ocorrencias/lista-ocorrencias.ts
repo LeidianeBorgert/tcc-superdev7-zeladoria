@@ -15,6 +15,9 @@ interface Relato {
   endereco?: string;
   foto?: string;
   imagem?: string;
+  usuario_nome?: string; 
+  emEdicao?: boolean;     
+  descricaoEditada?: string; 
 }
 
 @Component({
@@ -48,6 +51,9 @@ export class ListaOcorrenciasComponent implements OnInit {
 
   private cacheEnderecos: { [chave: string]: string } = {};
 
+  public exibirModalExclusao: boolean = false;
+  public itemParaExcluir: Relato | null = null;
+
   constructor(
     private relatoService: RelatoService,
     private cdr: ChangeDetectorRef,
@@ -71,7 +77,6 @@ export class ListaOcorrenciasComponent implements OnInit {
         });
 
         this.cdr.detectChanges(); 
-
         this.processarFilaNominatim(0);
       },
       error: (erro: any): void => {
@@ -80,26 +85,24 @@ export class ListaOcorrenciasComponent implements OnInit {
     });
   }
 
-obterUrlFoto(item: Relato): string | null {
-  const foto = item.foto || item.imagem;
+  obterUrlFoto(item: Relato): string | null {
+    const foto = item.foto || item.imagem;
 
-  console.log('ID:', item.id, 'Foto vinda do backend:', foto);
+    if (!foto || foto === 'Sem Foto' || foto.includes('placeholder')) {
+      return null;
+    }
 
-  if (!foto || foto === 'Sem Foto' || foto.includes('placeholder')) {
-    return null;
+    if (foto.startsWith('data:image') || foto.startsWith('http://') || foto.startsWith('https://')) {
+      return foto;
+    }
+
+    if (foto.includes('/') || foto.includes('\\') || foto.includes('.')) {
+      const caminhoFormatado = foto.startsWith('/') ? foto : `/${foto}`;
+      return `${this.API_URL}${caminhoFormatado}`;
+    }
+
+    return `data:image/jpeg;base64,${foto}`;
   }
-
-  if (foto.startsWith('data:image') || foto.startsWith('http://') || foto.startsWith('https://')) {
-    return foto;
-  }
-
-  if (foto.includes('/') || foto.includes('\\') || foto.includes('.')) {
-    const caminhoFormatado = foto.startsWith('/') ? foto : `/${foto}`;
-    return `${this.API_URL}${caminhoFormatado}`;
-  }
-
-  return `data:image/jpeg;base64,${foto}`;
-}
 
   private processarFilaNominatim(indice: number): void {
     if (indice >= this.ocorrencias.length) return;
@@ -258,5 +261,55 @@ obterUrlFoto(item: Relato): string | null {
   obterClasseStatus(status?: string): string {
     if (!status) return 'pendente';
     return status.toLowerCase().replace(/\s+/g, '-');
+  }
+
+  iniciarEdicao(item: Relato): void {
+    item.emEdicao = true;
+    item.descricaoEditada = item.descricao;
+    this.cdr.detectChanges();
+  }
+
+  salvarEdicao(item: Relato): void {
+    if (!item.id || !item.descricaoEditada?.trim()) return;
+
+    this.http.put(`${this.API_URL}/api/relatos/${item.id}`, { descricao: item.descricaoEditada })
+      .subscribe({
+        next: () => {
+          item.descricao = item.descricaoEditada!;
+          item.emEdicao = false;
+          this.cdr.detectChanges();
+        },
+        error: (err) => console.error('Erro ao editar ocorrência:', err)
+      });
+  }
+
+  iniciarExclusao(item: Relato): void {
+    this.itemParaExcluir = item;
+    this.exibirModalExclusao = true;
+  }
+
+  cancelarExclusao(): void {
+    this.exibirModalExclusao = false;
+    this.itemParaExcluir = null;
+  }
+
+  confirmarExclusao(): void {
+    if (!this.itemParaExcluir || !this.itemParaExcluir.id) return;
+
+    const id = this.itemParaExcluir.id;
+
+    this.http.delete(`${this.API_URL}/api/relatos/${id}`)
+      .subscribe({
+        next: () => {
+          this.ocorrencias = this.ocorrencias.filter(o => o.id !== id);
+          this.aplicarFiltros();
+          this.cancelarExclusao();
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          console.error('Erro ao excluir ocorrência:', err);
+          this.cancelarExclusao();
+        }
+      });
   }
 }

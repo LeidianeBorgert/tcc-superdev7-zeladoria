@@ -48,7 +48,6 @@
     </div>
   </div>
 
-
   <div class="lista-cards">
     
     <div class="card-horizontal" *ngFor="let item of obterOcorrenciasPaginadas()" [ngClass]="obterClasseStatus(item.status)">
@@ -58,7 +57,7 @@
           {{ formatarCategoria(item.categoria) }}
         </span>
         <div class="box-foto">
-          <img  *ngIf="obterUrlFoto(item)"  [src]="obterUrlFoto(item)" alt="Foto da ocorrência" />
+          <img *ngIf="obterUrlFoto(item)" [src]="obterUrlFoto(item)" alt="Foto da ocorrência" />
           
           <div *ngIf="!obterUrlFoto(item)" class="placeholder-icone">
             <span class="texto-sem-foto">Sem Foto</span>
@@ -69,9 +68,22 @@
       </div>
 
       <div class="col-meio">
-        <h3 class="titulo-rua">{{ item.endereco || 'Buscando endereço...' }}</h3>
+        <div class="header-ocorrencia">
+          <h3 class="titulo-rua">{{ item.endereco || 'Buscando endereço...' }}</h3>
+          <span class="autor-relato"><i class="fa-solid fa-user icon-usuario"></i>
+            Postado por: <strong>{{ item.usuario_nome || 'Anônimo' }}</strong></span>
+        </div>
+
         <div class="box-descricao">
-          <p>{{ item.descricao }}</p>
+          <p *ngIf="!item.emEdicao">{{ item.descricao }}</p>
+          
+          <div *ngIf="item.emEdicao" class="box-edicao">
+            <textarea [(ngModel)]="item.descricaoEditada" class="input-edicao" rows="3"></textarea>
+            <div class="botoes-edicao">
+              <button type="button" class="btn-salvar" (click)="salvarEdicao(item)">Salvar</button>
+              <button type="button" class="btn-cancelar" (click)="item.emEdicao = false">Cancelar</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -89,11 +101,15 @@
           </select>
         </div>
 
-        <button type="button" class="btn-visualizar" (click)="abrirNoMapa(item.latitude, item.longitude)">
-          Ver Mais
-        </button>
+        <div class="grupo-botoes-acao">
+           <button type="button" class="btn-editar" (click)="iniciarEdicao(item)">
+               <i class="fa-solid fa-pen-to-square"></i> Editar
+            </button>
+              <button type="button" class="btn-excluir" (click)="iniciarExclusao(item)">
+                <i class="fa-solid fa-trash-can"></i> Excluir
+              </button>
+          </div>
       </div>
-
     </div>
 
     <div *ngIf="ocorrenciasFiltradas.length === 0" style="text-align: center; padding: 40px; color: #64748b;">
@@ -124,4 +140,17 @@
     </button>
   </div>
 
+</div>
+
+<div class="modal-overlay" *ngIf="exibirModalExclusao">
+  <div class="modal-box">
+    <h3><i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b; margin-right: 8px;"></i>
+       Confirmar Exclusão</h3>
+    <p>Tem certeza de que deseja excluir esta ocorrência?</p>
+    
+    <div class="modal-actions">
+      <button type="button" class="btn-cancelar" (click)="cancelarExclusao()">Cancelar</button>
+      <button type="button" class="btn-confirmar" (click)="confirmarExclusao()">Excluir</button>
+    </div>
+  </div>
 </div>

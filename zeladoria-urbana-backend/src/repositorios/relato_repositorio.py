@@ -15,11 +15,13 @@ def obter_todos(db: Session):
             "longitude": r.longitude,
             "dataCriacao": r.dataCriacao,  
             "status": r.status,
-            "foto": r.foto
+            "foto": r.foto,
+            "usuario_nome": getattr(r, 'usuario_nome', 'Anônimo') or 'Anônimo'
         })
     return resultado
 
-def criar(db: Session, categoria: str, descricao: str, latitude: str, longitude: str,foto: str = None):
+def criar(db: Session, categoria: str, descricao: str, latitude: str, 
+          longitude: str,foto: str = None,usuario_nome: str = "Anônimo"):
     data_atual = datetime.now().strftime('%d/%m/%Y')
     novo_relato = Relato(
         categoria=categoria,
@@ -28,7 +30,8 @@ def criar(db: Session, categoria: str, descricao: str, latitude: str, longitude:
         longitude=longitude,
         dataCriacao=data_atual,
         status="Pendente",
-        foto=foto
+        foto=foto,
+        usuario_nome=usuario_nome if usuario_nome else "Anônimo"
     )
     db.add(novo_relato)
     db.commit()
@@ -42,7 +45,8 @@ def criar(db: Session, categoria: str, descricao: str, latitude: str, longitude:
         "longitude": novo_relato.longitude,
         "dataCriacao": novo_relato.dataCriacao,
         "status": novo_relato.status,
-        "foto": novo_relato.foto
+        "foto": novo_relato.foto,
+        "usuario_nome": novo_relato.usuario_nome
     }
 
 def atualizar_status(db: Session, id: int, novo_status: str):
@@ -51,5 +55,21 @@ def atualizar_status(db: Session, id: int, novo_status: str):
         relato.status = novo_status
         db.commit()
         db.refresh(relato)
+        return relato
+    return None
+
+def deletar(db: Session, id: int):
+    relato = db.query(Relato).filter(Relato.id == id).first()
+    if relato:
+        db.delete(relato)
+        db.commit()
+        return True
+    return False
+
+def atualizar_descricao(db: Session, id: int, nova_descricao: str):
+    relato = db.query(Relato).filter(Relato.id == id).first()
+    if relato:
+        relato.descricao = nova_descricao
+        db.commit()
         return relato
     return None

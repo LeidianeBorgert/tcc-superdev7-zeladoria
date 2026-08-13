@@ -36,7 +36,11 @@ class RelatoCriarSchema(BaseModel):
     descricao: str
     latitude: str
     longitude: str
-    foto: Optional[str] = None  
+    foto: Optional[str] = None
+    usuario_nome: Optional[str] = "Anônimo"  
+
+class RelatoEditarSchema(BaseModel):
+    descricao: str
 
 
 class StatusAtualizarSchema(BaseModel):
@@ -71,7 +75,8 @@ def cadastrar_novo_relato(dados: RelatoCriarSchema, db: Session = Depends(get_db
         descricao=dados.descricao, 
         latitude=dados.latitude, 
         longitude=dados.longitude,
-        foto=dados.foto
+        foto=dados.foto,
+        usuario_nome=dados.usuario_nome
     )
 
 # ATUALIZA STATUS
@@ -81,6 +86,22 @@ def mudar_status_relato(id: int, dados: StatusAtualizarSchema, db: Session = Dep
     if not relato_atualizado:
         raise HTTPException(status_code=404, detail="Ocorrência não encontrada.")
     return {"message": "Status atualizado com sucesso!"}
+
+# DELETA
+@app.delete("/api/relatos/{id}")
+def deletar_relato(id: int, db: Session = Depends(get_db)):
+    sucesso = repositorio.deletar(db, id)
+    if not sucesso:
+        raise HTTPException(status_code=404, detail="Ocorrência não encontrada.")
+    return {"message": "Ocorrência excluída com sucesso!"}
+
+#EDITA
+@app.put("/api/relatos/{id}")
+def editar_relato(id: int, dados: RelatoEditarSchema, db: Session = Depends(get_db)):
+    relato_atualizado = repositorio.atualizar_descricao(db, id, dados.descricao)
+    if not relato_atualizado:
+        raise HTTPException(status_code=404, detail="Ocorrência não encontrada.")
+    return {"message": "Ocorrência atualizada com sucesso!"}
 
 @app.post("/api/usuarios/cadastro", status_code=201)
 def cadastrar_usuario(dados: UsuarioCadastroSchema, db: Session = Depends(get_db)):
