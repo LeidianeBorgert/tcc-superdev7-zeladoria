@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth';
 
 @Component({
@@ -16,10 +16,7 @@ export class LoginComponent {
   public senha: string = '';
   public erroMensagem: string = '';
 
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  constructor(private authService: AuthService) {}
 
   fazerLogin(): void {
     if (!this.email || !this.senha) {
@@ -28,12 +25,10 @@ export class LoginComponent {
     }
 
     this.authService.login({ email: this.email, senha: this.senha }).subscribe({
-      next: (resposta) => {
-        this.authService.salvarSessao(resposta);
-        this.router.navigate(['/dashboard']);
+      next: () => {
       },
       error: (err) => {
-        this.erroMensagem = err.error?.detail || 'Erro ao realizar login.';
+        this.erroMensagem = err.error?.detail || 'Erro ao realizar login. Verifique e-mail e senha.';
       }
     });
   }

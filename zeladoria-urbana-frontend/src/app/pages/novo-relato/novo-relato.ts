@@ -49,15 +49,30 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
   public mensagemNotificacao: string | null = null;
   public tipoNotificacao: 'sucesso' | 'erro' = 'sucesso';
 
-  constructor(private fb: FormBuilder, private cdr: ChangeDetectorRef, 
-    private relatoService: RelatoService) {
+constructor(
+    private fb: FormBuilder, 
+    private cdr: ChangeDetectorRef, 
+    private relatoService: RelatoService
+  ) {
+    const usuarioStorage = localStorage.getItem('usuario_logado') || localStorage.getItem('usuarioLogado') || localStorage.getItem('user');
+    let nomePadrao = '';
+
+    if (usuarioStorage) {
+      try {
+        const usuarioObj = JSON.parse(usuarioStorage);
+        nomePadrao = usuarioObj?.nome || usuarioObj?.usuario_nome || '';
+      } catch (e) {
+        console.warn('Erro ao ler usuário do localStorage:', e);
+      }
+    }
+
     this.relatoForm = this.fb.group({
       categoria: ['', Validators.required],
       descricao: ['', [Validators.required, Validators.minLength(10)]],
       latitude: ['-26.9166', Validators.required],
       longitude: ['-49.0661', Validators.required],
       endereco: [''],
-      nomeUsuario: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]], 
+      nomeUsuario: [nomePadrao, [Validators.required, Validators.minLength(3), Validators.maxLength(100)]], 
       foto: ['']
     });
   }
@@ -246,7 +261,9 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
     });
 
     this.obterEnderecoTexto(latFormatada, lngFormatada);
+    this.cdr.detectChanges();
   }
+  
 
   private obterEnderecoTexto(lat: string, lon: string): void {
     const url = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`;
@@ -272,37 +289,46 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  public enviarRelatoCompleto(): void {
-    if (this.relatoForm.invalid) {
-      this.relatoForm.markAllAsTouched();
-      return;
-    }
-
-    const dadosDoRelato = this.relatoForm.value;
-
-    this.relatoService.salvarRelato(dadosDoRelato).subscribe({
-      next: (resposta: any): void => {
-        this.exibirNotificacao('Relato salvo com sucesso no banco de dados!', 'sucesso');
-        
-        this.relatoForm.reset(); 
-        this.etapaAtual = 1; 
-        this.fotoPreview = null;
-        this.fotoArquivo = null;
-        this.nomeArquivoSelecionado = '';
-        this.ehAnonimo = false;
-        
-        this.definirAnonimo(false);
-
-        setTimeout((): void => {
-          this.initMap();
-        }, 200);
-      },
-      error: (erro: any): void => {
-        console.error('Erro ao conectar na API:', erro);
-        this.exibirNotificacao('Erro ao salvar o relato. Tente novamente!', 'erro');
-      }
-    });
+public enviarRelatoCompleto(): void {
+  if (this.relatoForm.invalid) {
+    this.relatoForm.markAllAsTouched();
+    return;
   }
+
+  const formValue = this.relatoForm.value;
+
+  const dadosDoRelato = {
+    categoria: formValue.categoria,
+    descricao: formValue.descricao,
+    latitude: formValue.latitude,
+    longitude: formValue.longitude,
+    foto: formValue.foto || null,
+    usuario_nome: this.ehAnonimo ? 'Anônimo' : (formValue.nomeUsuario || 'Anônimo')
+  };
+
+  this.relatoService.salvarRelato(dadosDoRelato).subscribe({
+    next: (resposta: any): void => {
+      this.exibirNotificacao('Relato salvo com sucesso no banco de dados!', 'sucesso');
+      
+      this.relatoForm.reset(); 
+      this.etapaAtual = 1; 
+      this.fotoPreview = null;
+      this.fotoArquivo = null;
+      this.nomeArquivoSelecionado = '';
+      this.ehAnonimo = false;
+      
+      this.definirAnonimo(false);
+
+      setTimeout((): void => {
+        this.initMap();
+      }, 200);
+    },
+    error: (erro: any): void => {
+      console.error('Erro ao conectar na API:', erro);
+      this.exibirNotificacao('Erro ao salvar o relato. Tente novamente!', 'erro');
+    }
+  });
+}
 
   private exibirNotificacao(mensagem: string, tipo: 'sucesso' | 'erro'): void {
     this.mensagemNotificacao = mensagem;

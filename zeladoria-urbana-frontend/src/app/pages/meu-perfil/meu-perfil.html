@@ -1,0 +1,64 @@
+<div class="list-container">
+  
+  <div class="perfil-header" *ngIf="usuarioLogado">
+    <div class="info-usuario">
+      <h2><i class="fa-solid fa-circle-user"></i> {{ usuarioLogado.nome }}</h2>
+      <p><i class="fa-solid fa-envelope"></i> {{ usuarioLogado.email }}</p>
+      <span class="badge-role">{{ usuarioLogado.role === 'ADMIN' ? 'Administrador' : 'Cidadão' }}</span>
+    </div>
+    
+    <div class="acoes-perfil">
+      <button routerLink="/novo-relato" class="btn-novo">+ Novo Relato</button>
+      <button (click)="logout()" class="btn-sair"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+    </div>
+  </div>
+
+  <hr class="divisor" />
+
+  <h3>Minhas Ocorrências Registradas</h3>
+
+  <div *ngIf="carregando" class="status-mensagem">Carregando seus relatos...</div>
+  
+  <div *ngIf="!carregando && minhasOcorrencias.length === 0" class="status-mensagem">
+    Você ainda não registrou nenhuma ocorrência.
+  </div>
+
+  <div class="lista-cards" *ngIf="!carregando && minhasOcorrencias.length > 0">
+    <div class="card-horizontal" *ngFor="let item of minhasOcorrencias">
+      
+      <div class="col-esquerda">
+        <span class="badge-categoria">{{ item.categoria || 'Geral' }}</span>
+        <div class="box-foto">
+          <img *ngIf="item.foto" [src]="item.foto" alt="Foto do problema" />
+          <div *ngIf="!item.foto" class="placeholder-icone">
+            <span class="texto-sem-foto">Sem foto</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-meio">
+        <h3 class="titulo-rua">{{ item.rua }}</h3>
+        <span class="autor-relato">
+          <i class="fa-solid fa-user icon-usuario"></i>
+          Postado por: <strong>Você</strong>
+        </span>
+        <div class="box-descricao">
+          <p>{{ item.descricao }}</p>
+        </div>
+      </div>
+
+      <div class="col-direita">
+        <div class="box-status">
+          <label>Status:</label>
+          <span class="badge-status {{ item.status }}">{{ item.status || 'Pendente' }}</span>
+        </div>
+        
+        <div class="grupo-botoes-acao">
+          <button class="btn-editar">Editar</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

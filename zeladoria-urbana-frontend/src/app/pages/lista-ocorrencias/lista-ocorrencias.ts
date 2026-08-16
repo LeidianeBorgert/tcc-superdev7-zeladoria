@@ -139,8 +139,8 @@ export class ListaOcorrenciasComponent implements OnInit {
       return;
     }
 
-    const url: string = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
-
+    const url: string = `${this.API_URL}/api/geocodificar-reversa?lat=${lat}&lon=${lon}`;
+    
     this.http.get<any>(url).subscribe({
       next: (resposta: any): void => {
         if (resposta && resposta.address) {
