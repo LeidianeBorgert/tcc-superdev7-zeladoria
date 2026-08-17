@@ -21,7 +21,7 @@ def obter_todos(db: Session):
     return resultado
 
 def criar(db: Session, categoria: str, descricao: str, latitude: str, 
-          longitude: str,foto: str = None,usuario_nome: str = "Anônimo"):
+          longitude: str, foto: str = None, usuario_nome: str = "Anônimo"):
     data_atual = datetime.now().strftime('%d/%m/%Y')
     novo_relato = Relato(
         categoria=categoria,
@@ -66,10 +66,16 @@ def deletar(db: Session, id: int):
         return True
     return False
 
-def atualizar_descricao(db: Session, id: int, nova_descricao: str):
+def atualizar_completo(db: Session, id: int, dados):
     relato = db.query(Relato).filter(Relato.id == id).first()
     if relato:
-        relato.descricao = nova_descricao
+        relato.categoria = dados.categoria
+        relato.descricao = dados.descricao
+        relato.latitude = dados.latitude
+        relato.longitude = dados.longitude
+        relato.foto = dados.foto
+        relato.usuario_nome = dados.usuario_nome
         db.commit()
+        db.refresh(relato)
         return relato
     return None

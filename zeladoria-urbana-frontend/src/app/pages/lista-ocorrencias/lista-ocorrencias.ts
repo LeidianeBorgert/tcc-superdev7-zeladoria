@@ -3,9 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RelatoService } from '../../services/relato.service';
+import { AuthService } from '../../services/auth';
 
 interface Relato {
   id?: number;
+  usuario_id?: number; 
+  usuarioId?: number;  
   categoria: string;
   descricao: string;
   latitude: string;
@@ -55,6 +58,7 @@ export class ListaOcorrenciasComponent implements OnInit {
   public itemParaExcluir: Relato | null = null;
 
   constructor(
+    public authService: AuthService,
     private relatoService: RelatoService,
     private cdr: ChangeDetectorRef,
     private http: HttpClient

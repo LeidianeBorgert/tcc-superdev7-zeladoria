@@ -7,14 +7,14 @@ import { Observable } from 'rxjs';
 })
 export class ListaOcorrenciasService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8000/api/ocorrencias';
+  private apiUrl = 'http://localhost:8000/api/relatos';
 
   obterOcorrencias(): Observable<any[]> {
     return this.http.get<any[]>(this.apiUrl);
   }
 
   atualizarStatus(id: number, status: string): Observable<any> {
-    return this.http.patch(`${this.apiUrl}/${id}/status`, { status });
+    return this.http.put(`${this.apiUrl}/${id}/status`, { status });
   }
 
   atualizarOcorrencia(id: number, dados: any): Observable<any> {

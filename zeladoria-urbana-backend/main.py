@@ -1,11 +1,11 @@
 import hashlib
-import os  
+import os 
 from typing import Optional
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import httpx  
+import httpx 
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
@@ -38,10 +38,6 @@ class RelatoCriarSchema(BaseModel):
     longitude: str
     foto: Optional[str] = None
     usuario_nome: Optional[str] = "Anônimo"
-
-
-class RelatoEditarSchema(BaseModel):
-    descricao: str
 
 
 class StatusAtualizarSchema(BaseModel):
@@ -152,14 +148,12 @@ def deletar_relato(id: int, db: Session = Depends(get_db)):
     return {"message": "Ocorrência excluída com sucesso!"}
 
 
-# EDITA
+# EDITA 
 @app.put("/api/relatos/{id}")
 def editar_relato(
-    id: int, dados: RelatoEditarSchema, db: Session = Depends(get_db)
+    id: int, dados: RelatoCriarSchema, db: Session = Depends(get_db)
 ):
-    relato_atualizado = repositorio.atualizar_descricao(
-        db, id, dados.descricao
-    )
+    relato_atualizado = repositorio.atualizar_completo(db, id, dados)
     if not relato_atualizado:
         raise HTTPException(
             status_code=404, detail="Ocorrência não encontrada."

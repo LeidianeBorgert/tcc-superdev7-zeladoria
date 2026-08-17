@@ -70,19 +70,21 @@
       <div class="col-meio">
         <div class="header-ocorrencia">
           <h3 class="titulo-rua">{{ item.endereco || 'Buscando endereço...' }}</h3>
-          <span class="autor-relato"><i class="fa-solid fa-user icon-usuario"></i>
-            Postado por: <strong>{{ item.usuario_nome || 'Anônimo' }}</strong></span>
+          <span class="autor-relato">
+            <i class="fa-solid fa-user icon-usuario"></i>
+            Postado por: <strong>{{ item.usuario_nome || 'Anônimo' }}</strong>
+          </span>
         </div>
 
-        <div class="box-descricao">
-          <p *ngIf="!item.emEdicao">{{ item.descricao }}</p>
-          
-          <div *ngIf="item.emEdicao" class="box-edicao">
-            <textarea [(ngModel)]="item.descricaoEditada" class="input-edicao" rows="3"></textarea>
-            <div class="botoes-edicao">
-              <button type="button" class="btn-salvar" (click)="salvarEdicao(item)">Salvar</button>
-              <button type="button" class="btn-cancelar" (click)="item.emEdicao = false">Cancelar</button>
-            </div>
+        <div class="box-descricao" *ngIf="!item.emEdicao">
+          <p>{{ item.descricao || 'Sem descrição informada.' }}</p>
+        </div>
+
+        <div class="box-edicao" *ngIf="item.emEdicao">
+          <textarea class="input-edicao" [(ngModel)]="item.descricaoEditada"></textarea>
+          <div class="botoes-edicao">
+            <button type="button" class="btn-salvar" (click)="salvarEdicao(item)">Salvar</button>
+            <button type="button" class="btn-cancelar" (click)="item.emEdicao = false">Cancelar</button>
           </div>
         </div>
       </div>
@@ -90,26 +92,34 @@
       <div class="col-direita">
         <div class="box-status">
           <label>Status / Visibilidade:</label>
+
           <select 
+            *ngIf="authService.isAdmin()"
             [value]="item.status || 'Pendente'" 
             (change)="mudarStatus(item, $any($event.target).value)"
             class="select-status"
           >
             <option value="Pendente">Pendente</option>
             <option value="Em Andamento">Em Andamento</option>
-            <option value="Resolvido">Concluído</option>  
+            <option value="Concluido">Concluído</option>  
           </select>
+
+          <div *ngIf="!authService.isAdmin()" class="caixa-status-readonly">
+            <span>{{ item.status || 'Pendente' }}</span>
+            
+          </div>
         </div>
 
-        <div class="grupo-botoes-acao">
-           <button type="button" class="btn-editar" (click)="iniciarEdicao(item)">
-               <i class="fa-solid fa-pen-to-square"></i> Editar
-            </button>
-              <button type="button" class="btn-excluir" (click)="iniciarExclusao(item)">
-                <i class="fa-solid fa-trash-can"></i> Excluir
-              </button>
-          </div>
+        <div class="grupo-botoes-acao" *ngIf="authService.isAdmin()">
+          <button type="button" class="btn-editar" (click)="iniciarEdicao(item)">
+            <i class="fa-solid fa-pen-to-square"></i> Editar
+          </button>
+          <button type="button" class="btn-excluir" (click)="iniciarExclusao(item)">
+            <i class="fa-solid fa-trash-can"></i> Excluir
+          </button>
+        </div>
       </div>
+
     </div>
 
     <div *ngIf="ocorrenciasFiltradas.length === 0" style="text-align: center; padding: 40px; color: #64748b;">
@@ -117,6 +127,7 @@
     </div>
 
   </div>
+
 
   <div class="paginacao-container" *ngIf="ocorrenciasFiltradas.length > 0">
     <button 
@@ -142,10 +153,13 @@
 
 </div>
 
+<!-- Modal Exclusão -->
 <div class="modal-overlay" *ngIf="exibirModalExclusao">
   <div class="modal-box">
-    <h3><i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b; margin-right: 8px;"></i>
-       Confirmar Exclusão</h3>
+    <h3>
+      <i class="fa-solid fa-triangle-exclamation" style="color: #f59e0b; margin-right: 8px;"></i>
+      Confirmar Exclusão
+    </h3>
     <p>Tem certeza de que deseja excluir esta ocorrência?</p>
     
     <div class="modal-actions">

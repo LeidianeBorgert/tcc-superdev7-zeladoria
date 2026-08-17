@@ -17,11 +17,16 @@ export class CadastroComponent {
   public senha: string = '';
   public erroMensagem: string = '';
   public sucessoMensagem: string = '';
+  public senhaVisivel: boolean = false; 
 
   constructor(
     private authService: AuthService,
     private router: Router
   ) {}
+
+  alternarVisibilidadeSenha(): void {
+    this.senhaVisivel = !this.senhaVisivel;
+  }
 
   cadastrar(): void {
     if (!this.nome || !this.email || !this.senha) {

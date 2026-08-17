@@ -27,17 +27,17 @@
     <div class="card-horizontal" *ngFor="let item of minhasOcorrencias">
       
       <div class="col-esquerda">
-        <span class="badge-categoria">{{ item.categoria || 'Geral' }}</span>
+        <span class="badge-categoria">{{ formatarCategoria(item.categoria) }}</span>
         <div class="box-foto">
-          <img *ngIf="item.foto" [src]="item.foto" alt="Foto do problema" />
-          <div *ngIf="!item.foto" class="placeholder-icone">
+          <img *ngIf="obterUrlFoto(item)" [src]="obterUrlFoto(item)" alt="Foto do problema" />
+          <div *ngIf="!obterUrlFoto(item)" class="placeholder-icone">
             <span class="texto-sem-foto">Sem foto</span>
           </div>
         </div>
       </div>
 
       <div class="col-meio">
-        <h3 class="titulo-rua">{{ item.rua }}</h3>
+        <h3 class="titulo-rua">{{ item.endereco || 'Carregando endereço...' }}</h3>
         <span class="autor-relato">
           <i class="fa-solid fa-user icon-usuario"></i>
           Postado por: <strong>Você</strong>
@@ -49,15 +49,31 @@
 
       <div class="col-direita">
         <div class="box-status">
-          <label>Status:</label>
+          <label>Status / Visibilidade:</label>
           <span class="badge-status {{ item.status }}">{{ item.status || 'Pendente' }}</span>
         </div>
         
         <div class="grupo-botoes-acao">
-          <button class="btn-editar">Editar</button>
+          <button (click)="editarOcorrencia(item)" class="btn-editar">
+            <i class="fa-solid fa-pen-to-square"></i> Editar
+          </button>
+          <button (click)="iniciarExclusao(item)" class="btn-excluir">
+            <i class="fa-solid fa-trash"></i> Excluir
+          </button>
         </div>
       </div>
 
+    </div>
+  </div>
+
+  <div class="modal-overlay" *ngIf="exibirModalExclusao">
+    <div class="modal-card">
+      <h4>Confirmar Exclusão</h4>
+      <p>Tem certeza de que deseja excluir esta ocorrência? Esta ação não poderá ser desfeita.</p>
+      <div class="modal-acoes">
+        <button (click)="cancelarExclusao()" class="btn-cancelar">Cancelar</button>
+        <button (click)="confirmarExclusao()" class="btn-confirmar-excluir">Excluir</button>
+      </div>
     </div>
   </div>
 

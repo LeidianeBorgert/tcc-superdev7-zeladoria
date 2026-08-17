@@ -2,7 +2,9 @@ import { Component, AfterViewInit, OnDestroy, ViewEncapsulation, ChangeDetectorR
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common'; 
 import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
 import { RelatoService } from '../../services/relato.service';
+import { ListaOcorrenciasService } from '../../services/lista-ocorrencias.service';
 
 import * as L from 'leaflet';
 
@@ -29,6 +31,9 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
   @ViewChild('nomeInput') nomeInput!: ElementRef;
 
   private http: HttpClient = inject(HttpClient);
+  private route: ActivatedRoute = inject(ActivatedRoute);
+  private router: Router = inject(Router);
+  private listaOcorrenciasService: ListaOcorrenciasService = inject(ListaOcorrenciasService);
 
   private map: L.Map | undefined;
   private marker: L.Marker | undefined;
@@ -49,7 +54,10 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
   public mensagemNotificacao: string | null = null;
   public tipoNotificacao: 'sucesso' | 'erro' = 'sucesso';
 
-constructor(
+  public modoEdicao: boolean = false;
+  public ocorrenciaId: number | null = null;
+
+  constructor(
     private fb: FormBuilder, 
     private cdr: ChangeDetectorRef, 
     private relatoService: RelatoService
@@ -74,6 +82,60 @@ constructor(
       endereco: [''],
       nomeUsuario: [nomePadrao, [Validators.required, Validators.minLength(3), Validators.maxLength(100)]], 
       foto: ['']
+    });
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout((): void => {
+      this.initMap();
+
+      this.route.queryParams.subscribe(params => {
+        if (params['id']) {
+          this.modoEdicao = true;
+          this.ocorrenciaId = +params['id'];
+          this.carregarDadosParaEdicao(this.ocorrenciaId);
+        }
+      });
+    }, 200);
+  }
+
+  private carregarDadosParaEdicao(id: number): void {
+    this.listaOcorrenciasService.obterOcorrencias().subscribe({
+      next: (dados: any[]) => {
+        const item = dados.find(o => o.id === id);
+        if (item) {
+          const lat = parseFloat(item.latitude) || -26.9166;
+          const lng = parseFloat(item.longitude) || -49.0661;
+
+          this.relatoForm.patchValue({
+            categoria: item.categoria,
+            descricao: item.descricao,
+            latitude: lat.toFixed(6),
+            longitude: lng.toFixed(6),
+            foto: item.foto || item.imagem || '',
+            nomeUsuario: item.usuario_nome || this.relatoForm.get('nomeUsuario')?.value
+          });
+
+          if (item.foto || item.imagem) {
+            this.fotoPreview = item.foto || item.imagem;
+          }
+
+          if (item.usuario_nome === 'Anônimo' || item.usuario_nome === 'Anonymous') {
+            this.definirAnonimo(true);
+          }
+
+          this.atualizarCoordenadas(lat, lng);
+          if (this.map) {
+            this.map.setView([lat, lng], 16);
+          }
+          if (this.marker) {
+            this.marker.setLatLng([lat, lng]);
+          }
+
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => console.error('Erro ao carregar dados da ocorrência para edição:', err)
     });
   }
 
@@ -202,19 +264,16 @@ constructor(
     this.cdr.detectChanges();
   }
 
-  ngAfterViewInit(): void {
-    setTimeout((): void => {
-      this.initMap();
-    }, 200);
-  }
-
   private initMap(): void {
     const mapElement: HTMLElement | null = document.getElementById('map');
-    if (!mapElement) return;
+    if (!mapElement || this.map) return; 
 
     try {
+      const initialLat = parseFloat(this.relatoForm.get('latitude')?.value) || -26.9166;
+      const initialLng = parseFloat(this.relatoForm.get('longitude')?.value) || -49.0661;
+
       this.map = L.map('map', {
-        center: [ -26.9166, -49.0661 ],
+        center: [initialLat, initialLng],
         zoom: 14
       });
 
@@ -225,7 +284,7 @@ constructor(
 
       this.map.invalidateSize();
 
-      this.marker = L.marker([ -26.9166, -49.0661 ], {
+      this.marker = L.marker([initialLat, initialLng], {
         draggable: true
       }).addTo(this.map);
 
@@ -241,7 +300,7 @@ constructor(
         }
       });
 
-      this.atualizarCoordenadas(-26.9166, -49.0661);
+      this.atualizarCoordenadas(initialLat, initialLng);
 
     } catch (error) {
       console.error('Erro ao inicializar o Leaflet:', error);
@@ -263,7 +322,6 @@ constructor(
     this.obterEnderecoTexto(latFormatada, lngFormatada);
     this.cdr.detectChanges();
   }
-  
 
   private obterEnderecoTexto(lat: string, lon: string): void {
     const url = `https://photon.komoot.io/reverse?lat=${lat}&lon=${lon}`;
@@ -289,46 +347,63 @@ constructor(
     });
   }
 
-public enviarRelatoCompleto(): void {
-  if (this.relatoForm.invalid) {
-    this.relatoForm.markAllAsTouched();
-    return;
-  }
-
-  const formValue = this.relatoForm.value;
-
-  const dadosDoRelato = {
-    categoria: formValue.categoria,
-    descricao: formValue.descricao,
-    latitude: formValue.latitude,
-    longitude: formValue.longitude,
-    foto: formValue.foto || null,
-    usuario_nome: this.ehAnonimo ? 'Anônimo' : (formValue.nomeUsuario || 'Anônimo')
-  };
-
-  this.relatoService.salvarRelato(dadosDoRelato).subscribe({
-    next: (resposta: any): void => {
-      this.exibirNotificacao('Relato salvo com sucesso no banco de dados!', 'sucesso');
-      
-      this.relatoForm.reset(); 
-      this.etapaAtual = 1; 
-      this.fotoPreview = null;
-      this.fotoArquivo = null;
-      this.nomeArquivoSelecionado = '';
-      this.ehAnonimo = false;
-      
-      this.definirAnonimo(false);
-
-      setTimeout((): void => {
-        this.initMap();
-      }, 200);
-    },
-    error: (erro: any): void => {
-      console.error('Erro ao conectar na API:', erro);
-      this.exibirNotificacao('Erro ao salvar o relato. Tente novamente!', 'erro');
+  public enviarRelatoCompleto(): void {
+    if (this.relatoForm.invalid) {
+      this.relatoForm.markAllAsTouched();
+      return;
     }
-  });
-}
+
+    const formValue = this.relatoForm.value;
+    
+    const dadosDoRelato = {
+      categoria: formValue.categoria,
+      descricao: formValue.descricao,
+      latitude: formValue.latitude,
+      longitude: formValue.longitude,
+      foto: formValue.foto || null,
+      usuario_nome: this.ehAnonimo ? 'Anônimo' : (formValue.nomeUsuario || 'Anônimo')
+    };
+
+    if (this.modoEdicao && this.ocorrenciaId) {
+      this.relatoService.editarRelato(this.ocorrenciaId, dadosDoRelato as any).subscribe({
+        next: (): void => {
+          this.exibirNotificacao('Relato atualizado com sucesso!', 'sucesso');
+          setTimeout(() => this.router.navigate(['/meu-perfil']), 1500);
+        },
+        error: (erro: any): void => {
+          console.error('Erro ao atualizar o relato:', erro);
+          this.exibirNotificacao('Erro ao atualizar o relato. Tente novamente!', 'erro');
+        }
+      });
+    } else {
+      this.relatoService.salvarRelato(dadosDoRelato).subscribe({
+        next: (): void => {
+          this.exibirNotificacao('Relato salvo com sucesso no banco de dados!', 'sucesso');
+          
+          this.relatoForm.reset(); 
+          this.etapaAtual = 1; 
+          this.fotoPreview = null;
+          this.fotoArquivo = null;
+          this.nomeArquivoSelecionado = '';
+          this.ehAnonimo = false;
+          
+          this.definirAnonimo(false);
+
+          setTimeout((): void => {
+            if (this.map) {
+              this.map.remove();
+              this.map = undefined;
+            }
+            this.initMap();
+          }, 200);
+        },
+        error: (erro: any): void => {
+          console.error('Erro ao conectar na API:', erro);
+          this.exibirNotificacao('Erro ao salvar o relato. Tente novamente!', 'erro');
+        }
+      });
+    }
+  }
 
   private exibirNotificacao(mensagem: string, tipo: 'sucesso' | 'erro'): void {
     this.mensagemNotificacao = mensagem;

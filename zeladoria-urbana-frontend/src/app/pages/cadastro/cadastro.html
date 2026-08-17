@@ -24,7 +24,19 @@
 
       <div class="campo-grupo">
         <label>Senha</label>
-        <input type="password" [(ngModel)]="senha" name="senha" placeholder="Crie uma senha" required />
+        <div class="input-com-icone">
+          <input 
+            [type]="senhaVisivel ? 'text' : 'password'" 
+            [(ngModel)]="senha" 
+            name="senha" 
+            placeholder="Crie uma senha" 
+            required 
+          />
+          <i 
+            [class]="senhaVisivel ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"
+            (click)="alternarVisibilidadeSenha()"
+          ></i>
+        </div>
       </div>
 
       <button type="submit" class="btn-entrar">Cadastrar</button>

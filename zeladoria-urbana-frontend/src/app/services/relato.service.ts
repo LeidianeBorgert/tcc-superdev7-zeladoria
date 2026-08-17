@@ -11,6 +11,7 @@ export interface Relato {
   dataCriacao?: string;
   status?: string;
   foto?: string;
+  usuario_nome?: string;
 }
 
 @Injectable({
@@ -24,6 +25,10 @@ export class RelatoService {
 
   public salvarRelato(relato: Relato): Observable<Relato> {
     return this.http.post<Relato>(this.apiUrl, relato);
+  }
+
+  public editarRelato(id: number, relato: Relato): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/${id}`, relato);
   }
 
   public listarRelatos(): Observable<Relato[]> {

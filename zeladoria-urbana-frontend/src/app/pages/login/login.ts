@@ -15,8 +15,13 @@ export class LoginComponent {
   public email: string = '';
   public senha: string = '';
   public erroMensagem: string = '';
+  public senhaVisivel: boolean = false;
 
   constructor(private authService: AuthService) {}
+
+  alternarVisibilidadeSenha(): void {
+    this.senhaVisivel = !this.senhaVisivel;
+  }
 
   fazerLogin(): void {
     if (!this.email || !this.senha) {
@@ -25,8 +30,7 @@ export class LoginComponent {
     }
 
     this.authService.login({ email: this.email, senha: this.senha }).subscribe({
-      next: () => {
-      },
+      next: () => {},
       error: (err) => {
         this.erroMensagem = err.error?.detail || 'Erro ao realizar login. Verifique e-mail e senha.';
       }
