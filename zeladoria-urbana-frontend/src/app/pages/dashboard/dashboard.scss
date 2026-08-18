@@ -1,6 +1,6 @@
 .dashboard-container {
   padding: 1rem 2rem 2rem; 
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   margin-top: 0.2rem; 
 
@@ -22,6 +22,18 @@
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
     width: 100%;
+    margin-bottom: 1.8rem;
+  }
+
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.8rem;
+    width: 100%;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr;
+    }
   }
 
   .card {
@@ -55,37 +67,22 @@
     &.card-novos {
       background-color: #dbeafe; 
       border: 1px solid #bfdbfe;
-
-      .card-value {
-        color: #1d4ed8;
-      }
-      .card-label {
-        color: #1e40af;
-      }
+      .card-value { color: #1d4ed8; }
+      .card-label { color: #1e40af; }
     }
     
     &.card-andamento {
       background-color: #fef3c7; 
       border: 1px solid #fde68a;
-
-      .card-value {
-        color: #d97706;
-      }
-      .card-label {
-        color: #b45309;
-      }
+      .card-value { color: #d97706; }
+      .card-label { color: #b45309; }
     }
     
     &.card-resolvidos {
       background-color: #dcfce7; 
       border: 1px solid #bbf7d0;
-
-      .card-value {
-        color: #15803d;
-      }
-      .card-label {
-        color: #166534;
-      }
+      .card-value { color: #15803d; }
+      .card-label { color: #166534; }
     }
   }
 
@@ -93,14 +90,36 @@
     background: #ffffff;
     border-radius: 16px; 
     padding: 2rem;
-    margin-top: 1.8rem;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
 
     .grafico-title {
-      margin: 0 0 1.5rem 0;
+      margin: 0 0 0.3rem 0;
       font-size: 1.25rem;
       color: #1e3d2f;
       font-weight: 700;
+    }
+
+    .map-header {
+      margin-bottom: 1rem;
+      .map-subtitle {
+        font-size: 0.85rem;
+        color: #556b60;
+      }
+    }
+
+    .map-container-wrapper {
+      position: relative;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.06);
+      flex-grow: 1;
+      
+      #heatmap {
+        z-index: 1;
+      }
     }
     
     .canvas-container {

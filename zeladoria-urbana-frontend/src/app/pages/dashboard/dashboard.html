@@ -19,10 +19,22 @@
     </div>
   </div>
 
-  <div class="grafico-card">
-    <h3 class="grafico-title">Ocorrências por Categoria</h3>
-    <div class="canvas-container">
-      <canvas #graficoPolar></canvas>
+  <div class="dashboard-grid">
+    <div class="grafico-card">
+      <div class="map-header">
+        <h3 class="grafico-title">Mapa de Calor - Concentração</h3>
+        <span class="map-subtitle">Áreas com maior incidência em Blumenau</span>
+      </div>
+      <div class="map-container-wrapper">
+        <div id="heatmap" style="height: 440px; width: 100%;"></div>
+      </div>
+    </div>
+
+    <div class="grafico-card">
+      <h3 class="grafico-title">Ocorrências por Categoria</h3>
+      <div class="canvas-container">
+        <canvas #graficoPolar></canvas>
+      </div>
     </div>
   </div>
 </div>

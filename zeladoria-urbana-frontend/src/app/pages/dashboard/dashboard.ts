@@ -1,7 +1,9 @@
-import { Component, OnInit, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, ChangeDetectorRef, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RelatoService } from '../../services/relato.service';
 import { Chart, registerables } from 'chart.js';
+import * as L from 'leaflet';
+import 'leaflet.heat';
 
 Chart.register(...registerables);
 
@@ -12,12 +14,14 @@ Chart.register(...registerables);
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, AfterViewInit {
   @ViewChild('graficoPolar') private canvasRef!: ElementRef;
   private chart: any;
+  private map!: L.Map;
+  private heatLayer: any;
 
   public totalNovos: number = 0; 
-  public emAndamento: number = 0;  
+  public emAndamento: number = 0;   
   public resolvidos: number = 0; 
 
   constructor(
@@ -26,10 +30,26 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.carregarContadores();
+    this.carregarDadosDashboard();
   }
 
-  private carregarContadores(): void {
+  ngAfterViewInit(): void {
+    this.initMap();
+  }
+
+  private initMap(): void {
+    this.map = L.map('heatmap', {
+      center: [-26.9194, -49.0661],
+      zoom: 13
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap'
+    }).addTo(this.map);
+  }
+
+  private carregarDadosDashboard(): void {
     this.relatoService.listarRelatos().subscribe({
       next: (dados: any[]) => {
         if (dados) {
@@ -55,6 +75,7 @@ export class DashboardComponent implements OnInit {
           }).length;
 
           this.montarGraficoCategorias(dados);
+          this.atualizarMapaCalor(dados);
         }
         this.cdr.detectChanges();
       },
@@ -62,6 +83,37 @@ export class DashboardComponent implements OnInit {
         console.warn('API Offline no Dashboard.');
       }
     });
+  }
+
+  private atualizarMapaCalor(relatos: any[]): void {
+    if (!this.map) return;
+
+    const pontosCalor = relatos
+      .filter(r => r.latitude && r.longitude)
+      .map(r => [Number(r.latitude), Number(r.longitude), 2.0]);
+
+    if (pontosCalor.length > 0) {
+      if (this.heatLayer) {
+        this.map.removeLayer(this.heatLayer);
+      }
+
+      this.heatLayer = (L as any).heatLayer(pontosCalor, {
+        radius: 50,     
+        blur: 25,       
+        maxZoom: 17,
+        max: 1.0,       
+        gradient: {     
+          0.4: 'blue',
+          0.6: 'cyan',
+          0.7: 'lime',
+          0.85: 'yellow',
+          0.95: 'orange',
+          1.0: 'magenta'
+        }
+      });
+
+      this.heatLayer.addTo(this.map);
+    }
   }
 
   private montarGraficoCategorias(relatos: any[]): void {
@@ -103,39 +155,20 @@ export class DashboardComponent implements OnInit {
         responsive: true,
         maintainAspectRatio: false,
         layout: {
-          padding: {
-            top: 20,
-            bottom: 20,
-            left: 20,
-            right: 20
-          }
+          padding: { top: 20, bottom: 20, left: 20, right: 20 }
         },
         scales: {
           r: {
             beginAtZero: true,
-            ticks: {
-              stepSize: 1,
-              display: true,
-              backdropColor: 'transparent',
-              font: {
-                size: 11
-              }
-            },
-            grid: {
-              color: 'rgba(0, 0, 0, 0.08)'
-            },
-            angleLines: {
-              color: 'rgba(0, 0, 0, 0.08)'
-            }
+            ticks: { stepSize: 1, display: true, backdropColor: 'transparent', font: { size: 11 } },
+            grid: { color: 'rgba(0, 0, 0, 0.08)' },
+            angleLines: { color: 'rgba(0, 0, 0, 0.08)' }
           }
         },
         plugins: {
           legend: {
             position: 'bottom',
-            labels: {
-              boxWidth: 15,
-              padding: 20
-            }
+            labels: { boxWidth: 15, padding: 20 }
           }
         }
       }
