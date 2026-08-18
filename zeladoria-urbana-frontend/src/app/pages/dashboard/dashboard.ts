@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RelatoService } from '../../services/relato.service';
 import { Chart, registerables } from 'chart.js';
@@ -33,9 +33,26 @@ export class DashboardComponent implements OnInit {
     this.relatoService.listarRelatos().subscribe({
       next: (dados: any[]) => {
         if (dados) {
-          this.totalNovos = dados.filter(r => !r.status || r.status === 'Pendente').length;
-          this.emAndamento = dados.filter(r => r.status === 'Em Andamento').length;
-          this.resolvidos = dados.filter(r => r.status === 'Resolvido' || r.status === 'Concluído').length;
+          const normalizar = (str: string) => (str || '')
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim();
+
+          this.totalNovos = dados.filter(r => {
+            const s = normalizar(r.status);
+            return !s || s === 'pendente' || s === 'novo';
+          }).length;
+
+          this.emAndamento = dados.filter(r => {
+            const s = normalizar(r.status);
+            return s.includes('andamento');
+          }).length;
+
+          this.resolvidos = dados.filter(r => {
+            const s = normalizar(r.status);
+            return s.includes('concluid') || s.includes('resolvid');
+          }).length;
 
           this.montarGraficoCategorias(dados);
         }
@@ -65,19 +82,19 @@ export class DashboardComponent implements OnInit {
     if (!this.canvasRef) return;
 
     this.chart = new Chart(this.canvasRef.nativeElement, {
-      type: 'polarArea',
+      type: 'polarArea', 
       data: {
         labels: labels.length ? labels : ['Sem dados'],
         datasets: [{
           label: 'Quantidade de Ocorrências',
           data: valores.length ? valores : [0],
           backgroundColor: [
-            'rgba(37, 99, 235, 0.7)',   // Azul
-            'rgba(245, 158, 11, 0.7)',  // Laranja
-            'rgba(16, 185, 129, 0.7)',  // Verde
-            'rgba(239, 68, 68, 0.7)',   // Vermelho
-            'rgba(139, 92, 246, 0.7)',  // Roxo
-            'rgba(236, 72, 153, 0.7)'   // Rosa
+            'rgba(37, 99, 235, 0.7)',
+            'rgba(245, 158, 11, 0.7)',
+            'rgba(16, 185, 129, 0.7)',
+            'rgba(239, 68, 68, 0.7)',
+            'rgba(139, 92, 246, 0.7)',
+            'rgba(236, 72, 153, 0.7)'
           ],
           borderWidth: 1
         }]
@@ -85,9 +102,40 @@ export class DashboardComponent implements OnInit {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 20,
+            bottom: 20,
+            left: 20,
+            right: 20
+          }
+        },
+        scales: {
+          r: {
+            beginAtZero: true,
+            ticks: {
+              stepSize: 1,
+              display: true,
+              backdropColor: 'transparent',
+              font: {
+                size: 11
+              }
+            },
+            grid: {
+              color: 'rgba(0, 0, 0, 0.08)'
+            },
+            angleLines: {
+              color: 'rgba(0, 0, 0, 0.08)'
+            }
+          }
+        },
         plugins: {
           legend: {
-            position: 'right'
+            position: 'bottom',
+            labels: {
+              boxWidth: 15,
+              padding: 20
+            }
           }
         }
       }

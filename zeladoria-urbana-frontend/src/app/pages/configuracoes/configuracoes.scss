@@ -1,0 +1,111 @@
+.config-container {
+  padding: 20px;
+  color: #1e3d2f;
+
+  h1 { margin-bottom: 5px; }
+  .subtitle { color: #666; margin-bottom: 25px; }
+
+  .config-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+  }
+
+  .config-card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+
+    h3 { 
+      margin-top: 0; 
+      display: flex; 
+      align-items: center; 
+      gap: 10px; 
+      margin-bottom: 20px;
+      color: #27ae60;
+    }
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+    label { display: block; margin-bottom: 5px; font-weight: 500; }
+    
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+    }
+
+    .input-password-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+
+      .form-control {
+        padding-right: 45px; 
+      }
+
+      .btn-olho {
+        position: absolute;
+        right: 12px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #7f8c8d;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+        z-index: 10; 
+
+        &:hover {
+          color: #27ae60;
+        }
+
+        i {
+          pointer-events: none; 
+        }
+      }
+    }
+  }
+
+  .btn-salvar {
+    background: #27ae60;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .preference-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    .pref-title { font-weight: 600; }
+    .pref-desc { font-size: 0.85rem; color: #777; margin: 0; }
+  }
+
+  .danger-zone {
+    border: 1px solid #ff7675;
+    background: #fff5f5;
+    .btn-excluir-conta {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  .config-grid { grid-template-columns: 1fr; }
+}

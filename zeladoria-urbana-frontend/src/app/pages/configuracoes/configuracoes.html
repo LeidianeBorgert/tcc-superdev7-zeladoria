@@ -1,0 +1,82 @@
+<div class="config-container">
+  <h1>Configurações da Conta</h1>
+  <p class="subtitle">Gerencie suas informações pessoais, segurança e preferências do sistema.</p>
+
+  <div class="config-grid">
+    <div class="config-card">
+      <h3><i class="fa-solid fa-user-pen"></i> Informações Pessoais</h3>
+      <form>
+        <div class="form-group">
+          <label>Nome Completo</label>
+          <input type="text" [(ngModel)]="usuario.nome" name="nome" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label>E-mail</label>
+          <input type="email" [(ngModel)]="usuario.email" name="email" class="form-control" />
+        </div>
+        <button type="button" (click)="salvarDados()" class="btn-salvar">Salvar Alterações</button>
+      </form>
+    </div>
+
+    <div class="config-card">
+      <h3><i class="fa-solid fa-lock"></i> Alterar Senha</h3>
+      <form>
+        <!-- Senha Atual -->
+        <div class="form-group">
+          <label>Senha Atual</label>
+          <div class="input-password-wrapper">
+            <input #inputAtual type="password" [(ngModel)]="senhas.atual" name="atual" placeholder="••••••••" class="form-control" />
+            <span class="btn-olho" (click)="toggleSenhaInput(inputAtual, iconeAtual)">
+              <i #iconeAtual class="fa-solid fa-eye"></i>
+            </span>
+          </div>
+        </div>
+
+        <!-- Nova Senha -->
+        <div class="form-group">
+          <label>Nova Senha</label>
+          <div class="input-password-wrapper">
+            <input #inputNova type="password" [(ngModel)]="senhas.nova" name="nova" placeholder="••••••••" class="form-control" />
+            <span class="btn-olho" (click)="toggleSenhaInput(inputNova, iconeNova)">
+              <i #iconeNova class="fa-solid fa-eye"></i>
+            </span>
+          </div>
+        </div>
+
+        <!-- Confirmar Nova Senha -->
+        <div class="form-group">
+          <label>Confirmar Nova Senha</label>
+          <div class="input-password-wrapper">
+            <input #inputConfirmar type="password" [(ngModel)]="senhas.confirmar" name="confirmar" placeholder="••••••••" class="form-control" />
+            <span class="btn-olho" (click)="toggleSenhaInput(inputConfirmar, iconeConfirmar)">
+              <i #iconeConfirmar class="fa-solid fa-eye"></i>
+            </span>
+          </div>
+        </div>
+
+        <button type="button" (click)="atualizarSenha()" class="btn-salvar">Atualizar Senha</button>
+      </form>
+    </div>
+
+    <!-- Preferências -->
+    <div class="config-card">
+      <h3><i class="fa-solid fa-palette"></i> Preferências</h3>
+      <div class="preference-item">
+        <div>
+          <span class="pref-title">Modo Escuro (Dark Mode)</span>
+          <p class="pref-desc">Alternar entre o tema claro e escuro (Em breve)</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" disabled />
+          <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="config-card danger-zone">
+      <h3><i class="fa-solid fa-triangle-exclamation"></i> Zona de Perigo</h3>
+      <p>A exclusão da conta é permanente e removerá todos os seus relatos e dados do sistema.</p>
+      <button type="button" (click)="excluirConta()" class="btn-excluir-conta">Excluir Minha Conta</button>
+    </div>
+  </div>
+</div>

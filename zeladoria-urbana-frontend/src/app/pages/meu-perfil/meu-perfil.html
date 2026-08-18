@@ -2,67 +2,88 @@
   
   <div class="perfil-header" *ngIf="usuarioLogado">
     <div class="info-usuario">
-      <h2><i class="fa-solid fa-circle-user"></i> {{ usuarioLogado.nome }}</h2>
-      <p><i class="fa-solid fa-envelope"></i> {{ usuarioLogado.email }}</p>
-      <span class="badge-role">{{ usuarioLogado.role === 'ADMIN' ? 'Administrador' : 'Cidadão' }}</span>
-    </div>
-    
-    <div class="acoes-perfil">
-      <button routerLink="/novo-relato" class="btn-novo">+ Novo Relato</button>
-      <button (click)="logout()" class="btn-sair"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+      <h2>Olá, {{ usuarioLogado.nome }}!</h2>
+      <div class="detalhes-contato">
+        <p><i class="fa-solid fa-envelope"></i> {{ usuarioLogado.email }}</p>
+        <span class="badge-role">{{ usuarioLogado.role === 'ADMIN' ? 'Administrador' : 'Cidadão' }}</span>
+      </div>
     </div>
   </div>
 
   <hr class="divisor" />
 
-  <h3>Minhas Ocorrências Registradas</h3>
+  <div class="painel-admin-section" *ngIf="isAdmin()">
+    <h3>Painel de Controle Administrativo</h3>
+    <p class="sub-texto-painel">Visibilidade chamados cadastrados no sistema:</p>
+    
+    <div class="dashboard-cards-perfil" style="display: flex; gap: 20px; margin-top: 20px;">
+      <div class="card-estatistica card-pendente" style="padding: 20px; background: #fff8e1; border-left: 5px solid #ffc107; border-radius: 8px; flex: 1;">
+        <h4>Pendentes</h4>
+        <p style="font-size: 24px; font-weight: bold; margin: 5px 0 0 0;">{{ totalPendentes }}</p>
+      </div>
 
-  <div *ngIf="carregando" class="status-mensagem">Carregando seus relatos...</div>
-  
-  <div *ngIf="!carregando && minhasOcorrencias.length === 0" class="status-mensagem">
-    Você ainda não registrou nenhuma ocorrência.
+      <div class="card-estatistica card-andamento" style="padding: 20px; background: #e3f2fd; border-left: 5px solid #2196f3; border-radius: 8px; flex: 1;">
+        <h4>Em Andamento</h4>
+        <p style="font-size: 24px; font-weight: bold; margin: 5px 0 0 0;">{{ totalAndamento }}</p>
+      </div>
+
+      <div class="card-estatistica card-resolvido" style="padding: 20px; background: #e8f5e9; border-left: 5px solid #4caf50; border-radius: 8px; flex: 1;">
+        <h4>Concluídos</h4>
+        <p style="font-size: 24px; font-weight: bold; margin: 5px 0 0 0;">{{ totalResolvidos }}</p>
+      </div>
+    </div>
   </div>
 
-  <div class="lista-cards" *ngIf="!carregando && minhasOcorrencias.length > 0">
-    <div class="card-horizontal" *ngFor="let item of minhasOcorrencias">
-      
-      <div class="col-esquerda">
-        <span class="badge-categoria">{{ formatarCategoria(item.categoria) }}</span>
-        <div class="box-foto">
-          <img *ngIf="obterUrlFoto(item)" [src]="obterUrlFoto(item)" alt="Foto do problema" />
-          <div *ngIf="!obterUrlFoto(item)" class="placeholder-icone">
-            <span class="texto-sem-foto">Sem foto</span>
+  <div *ngIf="!isAdmin()">
+    <h3>Minhas Ocorrências Registradas</h3>
+
+    <div *ngIf="carregando" class="status-mensagem">Carregando seus relatos...</div>
+    
+    <div *ngIf="!carregando && minhasOcorrencias.length === 0" class="status-mensagem">
+      Você ainda não registrou nenhuma ocorrência.
+    </div>
+
+    <div class="lista-cards" *ngIf="!carregando && minhasOcorrencias.length > 0">
+      <div class="card-horizontal" *ngFor="let item of minhasOcorrencias">
+        
+        <div class="col-esquerda">
+          <span class="badge-categoria">{{ formatarCategoria(item.categoria) }}</span>
+          <div class="box-foto">
+            <img *ngIf="obterUrlFoto(item)" [src]="obterUrlFoto(item)" alt="Foto do problema" />
+            <div *ngIf="!obterUrlFoto(item)" class="placeholder-icone">
+              <span class="texto-sem-foto">Sem foto</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="col-meio">
-        <h3 class="titulo-rua">{{ item.endereco || 'Carregando endereço...' }}</h3>
-        <span class="autor-relato">
-          <i class="fa-solid fa-user icon-usuario"></i>
-          Postado por: <strong>Você</strong>
-        </span>
-        <div class="box-descricao">
-          <p>{{ item.descricao }}</p>
+        <div class="col-meio">
+          <h3 class="titulo-rua">{{ item.endereco || 'Carregando endereço...' }}</h3>
+          <span class="autor-relato">
+            <i class="fa-solid fa-user icon-usuario"></i>
+            Postado por: <strong>Você</strong>
+          </span>
+          <div class="box-descricao">
+            <p>{{ item.descricao }}</p>
+          </div>
         </div>
-      </div>
 
-      <div class="col-direita">
-        <div class="box-status">
-          <label>Status / Visibilidade:</label>
-          <span class="badge-status {{ item.status }}">{{ item.status || 'Pendente' }}</span>
+        <div class="col-direita">
+          <div class="box-status">
+            <label>Status / Visibilidade:</label>
+            <span class="badge-status {{ item.status }}">{{ item.status || 'Pendente' }}</span>
+          </div>
+          
+          <div class="grupo-botoes-acao">
+            <button (click)="editarOcorrencia(item)" class="btn-editar">
+              <i class="fa-solid fa-pen-to-square"></i> Editar
+            </button>
+            <button (click)="iniciarExclusao(item)" class="btn-excluir">
+              <i class="fa-solid fa-trash"></i> Excluir
+            </button>
+          </div>
         </div>
-        
-        <div class="grupo-botoes-acao">
-          <button (click)="editarOcorrencia(item)" class="btn-editar">
-            <i class="fa-solid fa-pen-to-square"></i> Editar
-          </button>
-          <button (click)="iniciarExclusao(item)" class="btn-excluir">
-            <i class="fa-solid fa-trash"></i> Excluir
-          </button>
-        </div>
-      </div>
 
+      </div>
     </div>
   </div>
 

@@ -6,7 +6,7 @@
   <span class="texto">{{ mensagemNotificacao }}</span>
 </div>
 
-<div class="container-novo-relato" style="margin-top: 80px; padding: 20px;">
+<div class="container-novo-relato">
 
   <div class="progresso-container">
     <div class="barra-progresso">
@@ -17,7 +17,6 @@
 
   <form [formGroup]="relatoForm" (ngSubmit)="enviarRelatoCompleto()">
 
-    <!-- ETAPA 1: LOCALIZAÇÃO -->
     <div *ngIf="etapaAtual === 1" class="etapa-card">
       <h2>Confirme a Localização</h2>
       <p>Arraste o marcador no mapa exatamente sobre o problema urbano.</p>
@@ -49,7 +48,6 @@
       <button type="button" class="btn-proximo" (click)="proximaEtapa()">Confirmar Este Local</button>
     </div>
 
-    <!-- ETAPA 2: DETALHES -->
     <div *ngIf="etapaAtual === 2" class="etapa-card">
       <h2>O que aconteceu?</h2>
       <p>Selecione o tipo de problema e descreva o que precisa de conserto.</p>
@@ -104,7 +102,6 @@
       </div>
     </div>
 
-    <!-- ETAPA 3: UPLOAD DE MÍDIA -->
     <div *ngIf="etapaAtual === 3" class="etapa-card">
       <h2>Adicione Evidências Visuais</h2>
       <p>Se tiver, selecione um arquivo de imagem do seu dispositivo para anexar ao relato.</p>
@@ -149,7 +146,6 @@
       </div>
     </div>
 
-    <!-- ETAPA 4: IDENTIFICAÇÃO -->
     <div *ngIf="etapaAtual === 4" class="etapa-card">
       <h2>Como deseja se identificar?</h2>
       <p>Você pode usar o seu nome ou enviar o relato de forma totalmente anônima.</p>

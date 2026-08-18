@@ -1,22 +1,54 @@
-<header class="navbar">
-  <div class="logo">Zeladoria Urbana - Blumenau</div>
+<div class="app-layout" [class.sidebar-collapsed]="isSidebarCollapsed">
+  <aside class="sidebar">
+    <div class="sidebar-header-top">
+      <div class="logo-container" title="ZelaVerde Blumenau">
+        <img src="logo.png" alt="Logo" class="logo-img" />
+        <div class="logo-text-wrapper">
+          <span class="logo-title">ZelaVerde</span>
+          <span class="logo-subtitle">Blumenau</span>
+        </div>
+      </div>
+      <button class="btn-toggle" (click)="toggleSidebar()" title="Recolher/Expandir Menu">
+        <i class="fa-solid" [class.fa-chevron-right]="isSidebarCollapsed" [class.fa-chevron-left]="!isSidebarCollapsed"></i>
+      </button>
+    </div>
 
-  <nav class="nav-links">
-    <a routerLink="/dashboard" routerLinkActive="active">Painel Geral</a>
-    <a routerLink="/novo-relato" routerLinkActive="active">Novo Relato</a>
-    <a routerLink="/lista-ocorrencias" routerLinkActive="active">Ocorrências</a>
+    <nav class="nav-links">
+      <a routerLink="/dashboard" routerLinkActive="active" title="Painel Geral">
+        <i class="fa-solid fa-chart-pie"></i> <span class="nav-text">Painel Geral</span>
+      </a>
+      <a routerLink="/novo-relato" routerLinkActive="active" title="Novo Relato">
+        <i class="fa-solid fa-plus-circle"></i> <span class="nav-text">Novo Relato</span>
+      </a>
+      <a routerLink="/lista-ocorrencias" routerLinkActive="active" title="Ocorrências">
+        <i class="fa-solid fa-list-check"></i> <span class="nav-text">Ocorrências</span>
+      </a>
 
-    @if (authService.estaLogado()) {
-      <a routerLink="/meu-perfil" routerLinkActive="active">Meu Perfil</a>
-      <a (click)="logout()" style="cursor: pointer;">Sair</a>
-    } 
-    @else {
-      <a routerLink="/login" routerLinkActive="active">Login</a>
-      <a routerLink="/cadastro" routerLinkActive="active">Cadastro</a>
-    }
-  </nav>
-</header>
+      @if (authService.estaLogado()) {
+        <a routerLink="/meu-perfil" routerLinkActive="active" title="Meu Perfil">
+          <i class="fa-solid fa-user"></i> <span class="nav-text">Meu Perfil</span>
+        </a>
+        
+        <a routerLink="/configuracoes" routerLinkActive="active" title="Configurações">
+          <i class="fa-solid fa-gear"></i> <span class="nav-text">Configurações</span>
+        </a>
 
-<main class="content-container">
-  <router-outlet></router-outlet>
-</main>
+        <a (click)="logout()" style="cursor: pointer;" class="btn-sair" title="Sair">
+          <i class="fa-solid fa-right-from-bracket"></i> <span class="nav-text">Sair</span>
+        </a>
+      } 
+      @else {
+        <a routerLink="/login" routerLinkActive="active" title="Login">
+          <i class="fa-solid fa-right-to-bracket"></i> <span class="nav-text">Login</span>
+        </a>
+        <a routerLink="/cadastro" routerLinkActive="active" title="Cadastro">
+          <i class="fa-solid fa-user-plus"></i> <span class="nav-text">Cadastro</span>
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <main class="content-container">
+    <router-outlet></router-outlet>
+  </main>
+</div>

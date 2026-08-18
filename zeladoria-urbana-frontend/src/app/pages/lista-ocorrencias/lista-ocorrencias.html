@@ -76,15 +76,23 @@
           </span>
         </div>
 
-        <div class="box-descricao" *ngIf="!item.emEdicao">
+        <div class="box-descricao">
           <p>{{ item.descricao || 'Sem descrição informada.' }}</p>
         </div>
 
-        <div class="box-edicao" *ngIf="item.emEdicao">
-          <textarea class="input-edicao" [(ngModel)]="item.descricaoEditada"></textarea>
-          <div class="botoes-edicao">
-            <button type="button" class="btn-salvar" (click)="salvarEdicao(item)">Salvar</button>
-            <button type="button" class="btn-cancelar" (click)="item.emEdicao = false">Cancelar</button>
+        <div class="box-observacao-admin" *ngIf="item.observacao_admin || (authService.isAdmin() && item.emEdicaoAdmin)">
+          <div class="titulo-obs-admin">
+            <i class="fa-solid fa-shield-halved"></i> <strong>Observação do Administrador:</strong>
+          </div>
+          
+          <p *ngIf="!item.emEdicaoAdmin">{{ item.observacao_admin }}</p>
+
+          <div *ngIf="item.emEdicaoAdmin" class="box-edicao">
+            <textarea class="input-edicao" [(ngModel)]="item.observacaoTemp" placeholder="Digite uma observação..."></textarea>
+            <div class="botoes-edicao">
+              <button type="button" class="btn-salvar" (click)="salvarObservacaoAdmin(item)">Salvar</button>
+              <button type="button" class="btn-cancelar" (click)="cancelarEdicaoAdmin(item)">Cancelar</button>
+            </div>
           </div>
         </div>
       </div>
@@ -106,13 +114,26 @@
 
           <div *ngIf="!authService.isAdmin()" class="caixa-status-readonly">
             <span>{{ item.status || 'Pendente' }}</span>
-            
+          </div>
+        </div>
+
+        <div class="box-rating">
+          <label class="label-rating">Avaliação:</label>
+          <div class="estrelas-container">
+            <span 
+              *ngFor="let estrela of [1, 2, 3, 4, 5]" 
+              class="estrela" 
+              [ngClass]="{'ativa': estrela <= (item.rating || 0)}"
+              (click)="avaliarOcorrencia(item, estrela)"
+              title="{{ estrela }} estrela(s)">
+              ★
+            </span>
           </div>
         </div>
 
         <div class="grupo-botoes-acao" *ngIf="authService.isAdmin()">
-          <button type="button" class="btn-editar" (click)="iniciarEdicao(item)">
-            <i class="fa-solid fa-pen-to-square"></i> Editar
+          <button type="button" class="btn-editar" (click)="iniciarEdicaoAdmin(item)">
+            <i class="fa-solid fa-pen-to-square"></i> Observação
           </button>
           <button type="button" class="btn-excluir" (click)="iniciarExclusao(item)">
             <i class="fa-solid fa-trash-can"></i> Excluir
@@ -127,7 +148,6 @@
     </div>
 
   </div>
-
 
   <div class="paginacao-container" *ngIf="ocorrenciasFiltradas.length > 0">
     <button 
@@ -153,7 +173,6 @@
 
 </div>
 
-<!-- Modal Exclusão -->
 <div class="modal-overlay" *ngIf="exibirModalExclusao">
   <div class="modal-box">
     <h3>

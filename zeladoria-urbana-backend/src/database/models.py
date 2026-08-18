@@ -24,5 +24,6 @@ class Relato(Base):
     status = Column(String(50), nullable=False, default="Pendente")
     foto = Column(String, nullable=True)
     usuario_nome = Column(String, nullable=True, default="Anônimo")
+    observacao_admin = Column(Text, nullable=True) 
     
     usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=True)

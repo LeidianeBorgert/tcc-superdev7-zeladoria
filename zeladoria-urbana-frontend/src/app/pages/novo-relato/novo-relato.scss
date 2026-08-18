@@ -1,14 +1,13 @@
 @import "../../../../node_modules/leaflet/dist/leaflet.css";
 
-
 .container-novo-relato {
   max-width: 800px;
-  margin: 80px auto 0 auto; 
-  padding: 20px;
+  margin: 40px auto 0 auto; 
+  padding: 0 20px 20px 20px;
 }
 
 .progresso-container {
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   text-align: center;
 
   .barra-progresso {
@@ -172,7 +171,6 @@
   }
 }
 
-
 .input-padrao, .textarea-padrao {
   &.is-invalid {
     border-color: #dc3545 !important;
@@ -210,6 +208,7 @@ button:disabled {
   cursor: not-allowed !important;
   border-color: #cbd5e1 !important;
 }
+
 .upload-area {
   width: 100%;
   margin: 1.5rem 0;
@@ -273,9 +272,10 @@ button:disabled {
     }
   }
 }
+
 .toast-notificacao {
   position: fixed;
-  top: 90px;
+  top: 75px;
   right: 20px;
   z-index: 9999;
   display: flex;
@@ -314,6 +314,7 @@ button:disabled {
     opacity: 1;
   }
 }
+
 .btn-secondary {
   background-color: #6c757d;
   color: #ffffff;

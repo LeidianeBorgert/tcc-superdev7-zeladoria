@@ -18,13 +18,17 @@ export class MeuPerfilComponent implements OnInit {
   private ocorrenciasService = inject(ListaOcorrenciasService);
   private http = inject(HttpClient);
   private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef); // Injetado para forçar renderização no template
+  private cdr = inject(ChangeDetectorRef);
 
   private readonly API_URL = 'http://localhost:8000';
 
   usuarioLogado: Usuario | null = null;
   minhasOcorrencias: any[] = [];
   carregando: boolean = true;
+
+  totalPendentes: number = 0;
+  totalAndamento: number = 0;
+  totalResolvidos: number = 0;
 
   exibirModalExclusao: boolean = false;
   itemParaExcluir: any = null;
@@ -34,21 +38,42 @@ export class MeuPerfilComponent implements OnInit {
     this.carregarMinhasOcorrencias();
   }
 
+  isAdmin(): boolean {
+    return this.usuarioLogado?.role === 'ADMIN';
+  }
+
   carregarMinhasOcorrencias(): void {
     if (!this.usuarioLogado) {
       this.carregando = false;
       return;
     }
 
-    console.time('Tempo_API_Backend');
-
     this.ocorrenciasService.obterOcorrencias().subscribe({
       next: (dados: any) => { 
-        console.timeEnd('Tempo_API_Backend');
-        console.log('Dados recebidos do backend:', dados);
-        console.log('Usuário logado:', this.usuarioLogado);
-
         if (Array.isArray(dados)) {
+          if (this.isAdmin()) {
+            const normalizar = (str: string) => (str || '')
+              .toLowerCase()
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .trim();
+
+            this.totalPendentes = dados.filter(r => {
+              const s = normalizar(r.status);
+              return !s || s === 'pendente' || s === 'novo';
+            }).length;
+
+            this.totalAndamento = dados.filter(r => {
+              const s = normalizar(r.status);
+              return s.includes('andamento');
+            }).length;
+
+            this.totalResolvidos = dados.filter(r => {
+              const s = normalizar(r.status);
+              return s.includes('concluid') || s.includes('resolvid');
+            }).length;
+          }
+
           this.minhasOcorrencias = dados
             .filter((item: any) => {
               const idMatch = (item.usuario_id || item.usuarioId || item.usuario?.id) === this.usuarioLogado?.id;
@@ -63,15 +88,11 @@ export class MeuPerfilComponent implements OnInit {
                 ? `Lat: ${item.latitude}, Lon: ${item.longitude}` 
                 : 'Localização não informada'
             }));
-
-          console.log('Ocorrências encontradas do usuário:', this.minhasOcorrencias);
         }
 
-        // Finaliza o carregamento e força a atualização visual da tela
         this.carregando = false;
         this.cdr.detectChanges();
 
-        // Busca os endereços reais em segundo plano
         if (this.minhasOcorrencias.length > 0) {
           setTimeout(() => {
             this.minhasOcorrencias.forEach((item: any) => {
@@ -81,8 +102,7 @@ export class MeuPerfilComponent implements OnInit {
         }
       },
       error: (err: any) => { 
-        console.timeEnd('Tempo_API_Backend');
-        console.error('Erro ao buscar minhas ocorrências', err);
+        console.error('Erro ao buscar ocorrências', err);
         this.carregando = false;
         this.cdr.detectChanges();
       }
@@ -101,7 +121,7 @@ export class MeuPerfilComponent implements OnInit {
           const bairro = addr.neighbourhood || addr.suburb || addr.city_district || addr.district || addr.city || 'Blumenau';
           
           item.endereco = `${rua} - ${bairro}`;
-          this.cdr.detectChanges(); // Atualiza a tela assim que o endereço chegar
+          this.cdr.detectChanges();
         }
       },
       error: () => {}

@@ -10,7 +10,7 @@ from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
 from src.database.conexao import Base, engine, get_db
-from src.database.models import Usuario
+from src.database.models import Usuario, Relato
 import src.repositorios.relato_repositorio as repositorio
 
 Base.metadata.create_all(bind=engine)
@@ -44,6 +44,10 @@ class StatusAtualizarSchema(BaseModel):
     status: str
 
 
+class ObservacaoAdminSchema(BaseModel):
+    observacao_admin: str
+
+
 class UsuarioCadastroSchema(BaseModel):
     nome: str
     email: EmailStr
@@ -53,7 +57,6 @@ class UsuarioCadastroSchema(BaseModel):
 class UsuarioLoginSchema(BaseModel):
     email: EmailStr
     senha: str
-
 
 
 def hash_senha(senha: str) -> str:
@@ -84,7 +87,6 @@ def criar_admin_padrao():
 
 
 criar_admin_padrao()
-
 
 
 @app.get("/api/geocodificar-reversa")
@@ -135,6 +137,19 @@ def mudar_status_relato(
             status_code=404, detail="Ocorrência não encontrada."
         )
     return {"message": "Status atualizado com sucesso!"}
+
+
+# ATUALIZA 
+@app.put("/api/relatos/{id}/observacao")
+def atualizar_observacao_admin(
+    id: int, dados: ObservacaoAdminSchema, db: Session = Depends(get_db)
+):
+    relato_atualizado = repositorio.atualizar_observacao_admin(db, id, dados.observacao_admin)
+    if not relato_atualizado:
+        raise HTTPException(
+            status_code=404, detail="Ocorrência não encontrada."
+        )
+    return {"message": "Observação atualizada com sucesso!", "observacao_admin": relato_atualizado.observacao_admin}
 
 
 # DELETA

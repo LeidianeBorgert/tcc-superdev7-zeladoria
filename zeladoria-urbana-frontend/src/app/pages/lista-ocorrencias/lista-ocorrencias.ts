@@ -19,8 +19,10 @@ interface Relato {
   foto?: string;
   imagem?: string;
   usuario_nome?: string; 
-  emEdicao?: boolean;     
-  descricaoEditada?: string; 
+  observacao_admin?: string;         
+  emEdicaoAdmin?: boolean;         
+  observacaoTemp?: string;         
+  rating?: number; // <-- Adicionado suporte a rating
 }
 
 @Component({
@@ -267,24 +269,35 @@ export class ListaOcorrenciasComponent implements OnInit {
     return status.toLowerCase().replace(/\s+/g, '-');
   }
 
-  iniciarEdicao(item: Relato): void {
-    item.emEdicao = true;
-    item.descricaoEditada = item.descricao;
+  avaliarOcorrencia(item: Relato, nota: number): void {
+    item.rating = nota;
     this.cdr.detectChanges();
   }
 
-  salvarEdicao(item: Relato): void {
-    if (!item.id || !item.descricaoEditada?.trim()) return;
+  iniciarEdicaoAdmin(item: Relato): void {
+    item.emEdicaoAdmin = true;
+    item.observacaoTemp = item.observacao_admin || '';
+    this.cdr.detectChanges();
+  }
 
-    this.http.put(`${this.API_URL}/api/relatos/${item.id}`, { descricao: item.descricaoEditada })
-      .subscribe({
-        next: () => {
-          item.descricao = item.descricaoEditada!;
-          item.emEdicao = false;
-          this.cdr.detectChanges();
-        },
-        error: (err) => console.error('Erro ao editar ocorrência:', err)
-      });
+  salvarObservacaoAdmin(item: Relato): void {
+    if (!item.id) return;
+
+    this.http.put(`${this.API_URL}/api/relatos/${item.id}/observacao`, { 
+      observacao_admin: item.observacaoTemp 
+    }).subscribe({
+      next: () => {
+        item.observacao_admin = item.observacaoTemp;
+        item.emEdicaoAdmin = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Erro ao salvar observação:', err)
+    });
+  }
+
+  cancelarEdicaoAdmin(item: Relato): void {
+    item.emEdicaoAdmin = false;
+    this.cdr.detectChanges();
   }
 
   iniciarExclusao(item: Relato): void {

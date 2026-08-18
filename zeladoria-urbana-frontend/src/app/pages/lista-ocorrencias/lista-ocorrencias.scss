@@ -105,7 +105,7 @@
     padding: 1.25rem;
     display: flex;
     gap: 1.5rem;
-    align-items: center;
+    align-items: flex-start; 
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     transition: all 0.2s ease;
 
@@ -226,6 +226,41 @@
         }
       }
 
+      .box-observacao-admin {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-left: 3px solid #f59e0b; 
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-top: 6px;
+
+        .titulo-obs-admin {
+          font-size: 0.8rem;
+          color: #1e293b;
+          margin-bottom: 4px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+
+          i {
+            color: #f59e0b;
+          }
+
+          strong {
+            color: #334155;
+            font-weight: 700;
+          }
+        }
+
+        p {
+          font-size: 0.8rem;
+          color: #64748b;
+          font-style: italic;
+          margin: 0;
+          line-height: 1.35;
+        }
+      }
+
       .box-edicao {
         margin-top: 8px;
         display: flex;
@@ -238,6 +273,8 @@
           border: 1px solid #cbd5e1;
           border-radius: 6px;
           font-family: inherit;
+          resize: vertical;
+          min-height: 60px;
         }
 
         .botoes-edicao {
@@ -251,6 +288,11 @@
             padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
+            font-weight: 600;
+
+            &:hover {
+              background-color: #059669;
+            }
           }
 
           .btn-cancelar {
@@ -260,6 +302,11 @@
             padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
+            font-weight: 600;
+
+            &:hover {
+              background-color: #475569;
+            }
           }
         }
       }
@@ -269,10 +316,10 @@
       display: flex;
       flex-direction: column;
       align-items: flex-start;
-      justify-content: flex-start;
-      width: 180px;
-      min-width: 180px;
-      gap: 12px;
+      justify-content: space-between;
+      width: 215px;
+      min-width: 215px;
+      gap: 10px;
 
       .box-status {
         width: 100%;
@@ -281,13 +328,13 @@
           display: block;
           font-size: 0.75rem;
           color: #64748b;
-          margin-bottom: 6px;
+          margin-bottom: 4px;
           font-weight: 600;
         }
 
         .select-status {
           width: 100%;
-          height: 38px;
+          height: 36px;
           padding: 0 8px;
           border-radius: 6px;
           border: 1px solid #cbd5e1;
@@ -304,42 +351,80 @@
 
         .caixa-status-readonly {
           width: 100%;
-          height: 38px;
+          height: 36px;
           padding: 0 12px;
           border-radius: 6px;
           border: 1px solid #cbd5e1;
           font-size: 0.85rem;
           font-weight: 600;
-          background-color: #ffffff;
+          background-color: #f8fafc;
           color: #1e293b;
           display: flex;
           align-items: center;
-          justify-content: space-between;
           box-sizing: border-box;
+        }
+      }
 
-          .icone-seta {
-            font-size: 0.75rem;
-            color: #64748b;
+      .box-rating {
+        width: 100%;
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        padding: 6px 10px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+
+        .label-rating {
+          font-size: 0.7rem;
+          color: #64748b;
+          font-weight: 600;
+          margin-bottom: 2px;
+          text-align: center;
+          width: 100%;
+        }
+
+        .estrelas-container {
+          display: flex;
+          gap: 4px;
+          cursor: pointer;
+
+          .estrela {
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            transition: color 0.15s ease, transform 0.15s ease;
+
+            &.ativa {
+              color: #f59e0b;
+            }
+
+            &:hover {
+              transform: scale(1.15);
+              color: #fbbf24;
+            }
           }
         }
       }
 
       .grupo-botoes-acao {
         display: flex;
-        gap: 8px;
+        gap: 6px; 
         width: 100%;
+        margin-top: 2px;
 
         .btn-editar, .btn-excluir {
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
+          gap: 4px;
           border: none;
-          padding: 8px 10px;
+          padding: 7px 4px; 
           border-radius: 6px;
           cursor: pointer;
           font-weight: bold;
-          font-size: 0.82rem;
+          font-size: 0.75rem; 
+          white-space: nowrap; 
           flex: 1;
           transition: background-color 0.2s ease;
         }
@@ -404,10 +489,6 @@
         box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
       }
 
-      &:active:not(:disabled) {
-        transform: translateY(0);
-      }
-
       &:disabled {
         background-color: #f1f5f9;
         color: #94a3b8;
@@ -434,58 +515,57 @@
 
 .modal-box {
   background: #ffffff;
-  border-radius: 8px;
-  padding: 20px;
-  width: 350px;
+  border-radius: 12px;
+  padding: 24px;
+  width: 380px;
   text-align: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 
   h3 {
     margin-top: 0;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     font-size: 1.2rem;
-    color: #333333;
+    color: #1e293b;
     display: flex;
     align-items: center;
     justify-content: center;
   }
 
   p {
-    margin-bottom: 20px;
-    color: #666666;
+    color: #475569;
     font-size: 0.95rem;
-  }
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-
-  button {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
+    margin-bottom: 20px;
   }
 
-  .btn-cancelar {
-    background-color: #e0e0e0;
-    color: #333333;
+  .modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
 
-    &:hover {
-      background-color: #d0d0d0;
+    button {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
     }
-  }
 
-  .btn-confirmar {
-    background-color: #d9534f;
-    color: #ffffff;
+    .btn-cancelar {
+      background-color: #e2e8f0;
+      color: #334155;
 
-    &:hover {
-      background-color: #c9302c;
+      &:hover {
+        background-color: #cbd5e1;
+      }
+    }
+
+    .btn-confirmar {
+      background-color: #ef4444;
+      color: white;
+
+      &:hover {
+        background-color: #dc2626;
+      }
     }
   }
 }

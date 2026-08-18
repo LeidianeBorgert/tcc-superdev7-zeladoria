@@ -16,7 +16,8 @@ def obter_todos(db: Session):
             "dataCriacao": r.dataCriacao,  
             "status": r.status,
             "foto": r.foto,
-            "usuario_nome": getattr(r, 'usuario_nome', 'Anônimo') or 'Anônimo'
+            "usuario_nome": getattr(r, 'usuario_nome', 'Anônimo') or 'Anônimo',
+            "observacao_admin": getattr(r, 'observacao_admin', None) 
         })
     return resultado
 
@@ -31,7 +32,8 @@ def criar(db: Session, categoria: str, descricao: str, latitude: str,
         dataCriacao=data_atual,
         status="Pendente",
         foto=foto,
-        usuario_nome=usuario_nome if usuario_nome else "Anônimo"
+        usuario_nome=usuario_nome if usuario_nome else "Anônimo",
+        observacao_admin=None
     )
     db.add(novo_relato)
     db.commit()
@@ -46,13 +48,23 @@ def criar(db: Session, categoria: str, descricao: str, latitude: str,
         "dataCriacao": novo_relato.dataCriacao,
         "status": novo_relato.status,
         "foto": novo_relato.foto,
-        "usuario_nome": novo_relato.usuario_nome
+        "usuario_nome": novo_relato.usuario_nome,
+        "observacao_admin": novo_relato.observacao_admin
     }
 
 def atualizar_status(db: Session, id: int, novo_status: str):
     relato = db.query(Relato).filter(Relato.id == id).first()
     if relato:
         relato.status = novo_status
+        db.commit()
+        db.refresh(relato)
+        return relato
+    return None
+
+def atualizar_observacao_admin(db: Session, id: int, observacao: str):
+    relato = db.query(Relato).filter(Relato.id == id).first()
+    if relato:
+        relato.observacao_admin = observacao
         db.commit()
         db.refresh(relato)
         return relato

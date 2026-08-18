@@ -16,7 +16,6 @@ export const routes: Routes = [
     path: 'cadastro',
     loadComponent: () => import('./pages/cadastro/cadastro').then(m => m.CadastroComponent)
   },
-
   {
     path: 'novo-relato',
     loadComponent: () => import('./pages/novo-relato/novo-relato').then(m => m.NovoRelatoComponent),
@@ -31,6 +30,11 @@ export const routes: Routes = [
     path: 'meu-perfil',
     loadComponent: () => import('./pages/meu-perfil/meu-perfil').then(m => m.MeuPerfilComponent),
     canActivate: [authGuard]
+  },
+  {
+    path: 'configuracoes',
+    loadComponent: () => import('./pages/configuracoes/configuracoes').then(m => m.ConfiguracoesComponent),
+    canActivate: [authGuard] 
   },
 
   { path: '**', redirectTo: 'dashboard' }
