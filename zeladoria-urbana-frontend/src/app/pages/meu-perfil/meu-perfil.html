@@ -74,13 +74,16 @@
           </div>
           
           <div class="grupo-botoes-acao">
-            <button (click)="editarOcorrencia(item)" class="btn-editar">
-              <i class="fa-solid fa-pen-to-square"></i> Editar
-            </button>
-            <button (click)="iniciarExclusao(item)" class="btn-excluir">
-              <i class="fa-solid fa-trash"></i> Excluir
-            </button>
-          </div>
+    <button (click)="verDetalhes(item)" class="btn-ver-mais">
+    <i class="fa-solid fa-eye"></i> Ver Mais
+   </button>
+  <button (click)="editarOcorrencia(item)" class="btn-editar">
+    <i class="fa-solid fa-pen-to-square"></i> Editar
+  </button>
+  <button (click)="iniciarExclusao(item)" class="btn-excluir">
+    <i class="fa-solid fa-trash"></i> Excluir
+  </button>
+</div>
         </div>
 
       </div>

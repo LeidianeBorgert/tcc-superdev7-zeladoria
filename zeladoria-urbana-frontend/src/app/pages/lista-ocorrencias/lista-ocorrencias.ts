@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { RelatoService } from '../../services/relato.service';
 import { AuthService } from '../../services/auth';
+import { RouterLink } from '@angular/router'; 
 
 interface Relato {
   id?: number;
@@ -20,15 +21,15 @@ interface Relato {
   imagem?: string;
   usuario_nome?: string; 
   observacao_admin?: string;         
-  emEdicaoAdmin?: boolean;         
-  observacaoTemp?: string;         
-  rating?: number; // <-- Adicionado suporte a rating
+  emEdicaoAdmin?: boolean;                
+  rating?: number; 
+  totalCurtidas?: number;
 }
 
 @Component({
   selector: 'app-lista-ocorrencias',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,RouterLink],
   templateUrl: './lista-ocorrencias.html',
   styleUrl: './lista-ocorrencias.scss'
 })
@@ -276,29 +277,10 @@ export class ListaOcorrenciasComponent implements OnInit {
 
   iniciarEdicaoAdmin(item: Relato): void {
     item.emEdicaoAdmin = true;
-    item.observacaoTemp = item.observacao_admin || '';
+
     this.cdr.detectChanges();
   }
 
-  salvarObservacaoAdmin(item: Relato): void {
-    if (!item.id) return;
-
-    this.http.put(`${this.API_URL}/api/relatos/${item.id}/observacao`, { 
-      observacao_admin: item.observacaoTemp 
-    }).subscribe({
-      next: () => {
-        item.observacao_admin = item.observacaoTemp;
-        item.emEdicaoAdmin = false;
-        this.cdr.detectChanges();
-      },
-      error: (err) => console.error('Erro ao salvar observação:', err)
-    });
-  }
-
-  cancelarEdicaoAdmin(item: Relato): void {
-    item.emEdicaoAdmin = false;
-    this.cdr.detectChanges();
-  }
 
   iniciarExclusao(item: Relato): void {
     this.itemParaExcluir = item;

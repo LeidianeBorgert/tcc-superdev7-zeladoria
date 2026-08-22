@@ -41,6 +41,9 @@ export class MeuPerfilComponent implements OnInit {
   isAdmin(): boolean {
     return this.usuarioLogado?.role === 'ADMIN';
   }
+  verDetalhes(item: any): void {
+    this.router.navigate(['/ocorrencia', item.id]);
+  }
 
   carregarMinhasOcorrencias(): void {
     if (!this.usuarioLogado) {

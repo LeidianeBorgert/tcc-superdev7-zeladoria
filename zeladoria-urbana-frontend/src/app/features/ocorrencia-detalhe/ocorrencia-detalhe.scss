@@ -1,0 +1,432 @@
+.list-container {
+  padding: 20px;
+  max-width: 1100px;
+  margin: 0 auto;
+
+  .btn-voltar {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+
+    i {
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+
+    &:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+      color: #0f172a;
+    }
+  }
+}
+
+
+.topo-detalhe-header {
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+
+  .titulo-rua {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1e3d2f;
+    margin: 0 0 8px 0;
+  }
+
+  .header-info-inferior {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .autor-relato {
+      font-size: 0.85rem;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      .icon-usuario {
+        color: #229954;
+      }
+    }
+
+    .badge-tempo {
+      font-size: 0.82rem;
+      color: #64748b;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+
+      i {
+        color: #94a3b8;
+      }
+    }
+  }
+}
+
+.card-horizontal {
+  display: flex;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  gap: 24px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+  align-items: flex-start;
+
+  .col-esquerda {
+    width: 220px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .badge-categoria {
+      background-color: #dbeafe;
+      color: #1d4ed8;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      align-self: flex-start;
+    }
+
+    .box-foto-destaque {
+      position: relative;
+      width: 100%;
+      height: 140px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #0f172a;
+      border: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .sem-foto {
+        color: #64748b;
+        font-size: 0.85rem;
+      }
+
+      .btn-seta {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        border: none;
+        font-size: 1.1rem;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+        transition: background 0.2s;
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.85);
+        }
+
+        &.esquerda { left: 4px; }
+        &.direita { right: 4px; }
+      }
+    }
+
+    .miniaturas-carrossel {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 2px 0;
+
+      .mini-foto-item {
+        width: 40px;
+        height: 35px;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 2px solid transparent;
+        cursor: pointer;
+        opacity: 0.6;
+        transition: all 0.2s;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        &:hover {
+          opacity: 0.9;
+        }
+
+        &.ativa {
+          border-color: #229954;
+          opacity: 1;
+          transform: scale(1.05);
+        }
+      }
+    }
+
+    .badge-tempo {
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+  }
+
+  .col-meio {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    .box-descricao {
+      background: #f8fafc;
+      padding: 16px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      min-height: 140px;
+
+      .label-titulo {
+        font-weight: 700;
+        color: #1e3d2f;
+        font-size: 0.9rem;
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .texto-descricao {
+        font-size: 0.9rem;
+        color: #334155;
+        margin: 0;
+        line-height: 1.5;
+      }
+    }
+  }
+
+  .col-direita {
+    width: 220px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+
+    .label-titulo {
+      font-weight: 700;
+      color: #1e3d2f;
+      font-size: 0.85rem;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .caixa-status-readonly {
+      background: #eff6ff;
+      color: #1e40af;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: 1px solid #bfdbfe;
+    }
+
+    .box-rating {
+      margin-top: 10px;
+
+      .btn-curtir {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1.5px solid #cbd5e1;
+        background-color: #f8fafc;
+        transition: all 0.2s ease;
+        width: 100%;
+        justify-content: center;
+
+        .icone-circulo {
+          width: 28px;
+          height: 28px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #64748b;
+          transition: all 0.2s ease;
+
+          i {
+            font-size: 13px;
+          }
+        }
+
+        span {
+          font-size: 13px;
+          color: #475569;
+          font-weight: 500;
+        }
+
+        &:hover {
+          border-color: #229954;
+          background-color: #f0fdf4;
+          
+          .icone-circulo {
+            color: #229954;
+          }
+        }
+
+        &.ativo {
+          border-color: #229954;
+          background-color: #f0fdf4;
+
+          .icone-circulo {
+            color: #229954;
+          }
+
+          span {
+            color: #229954;
+            font-weight: 600;
+          }
+        }
+      }
+    }
+  }
+}
+
+.secao-comentarios {
+  margin-top: 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+
+  .comentarios-header-top {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #334155;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+  }
+
+  .form-comentario {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+
+    textarea {
+      width: 100%;
+      max-width: 100%;      
+      box-sizing: border-box; 
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.9rem;
+      font-family: inherit;
+      resize: vertical;     
+      min-height: 80px;     
+      max-height: 150px;
+      outline: none;
+      transition: border-color 0.2s;
+
+      &:focus {
+        border-color: #229954;
+      }
+    }
+
+    .btn-enviar-comentario {
+      align-self: flex-end;
+      background-color: #229954;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: #1e8449;
+      }
+    }
+  }
+
+  .lista-comentarios {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .comentario-item {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      padding: 12px 16px;
+      border-radius: 8px;
+
+      .comentario-topo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+
+        .comentario-autor {
+          font-size: 0.82rem;
+          font-weight: 700;
+          color: #1e3d2f;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .comentario-data {
+          font-size: 0.75rem;
+          color: #94a3b8;
+        }
+      }
+
+      .comentario-texto {
+        font-size: 0.88rem;
+        color: #334155;
+        margin: 0;
+        line-height: 1.4;
+      }
+    }
+  }
+
+  .sem-comentarios {
+    color: #64748b;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+}

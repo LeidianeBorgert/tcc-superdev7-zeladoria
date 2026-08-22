@@ -1,0 +1,102 @@
+<div class="list-container" *ngIf="ocorrencia">
+  <button class="btn-voltar" (click)="voltarParaLista()">
+    <i class="fa-solid fa-arrow-left"></i> Voltar para a Lista
+  </button>
+
+  <div class="topo-detalhe-header">
+    <h1 class="titulo-rua">{{ ocorrencia.endereco || 'Buscando endereço...' }}</h1>
+    <div class="header-info-inferior">
+      <span class="autor-relato">
+        <i class="fa-solid fa-user icon-usuario"></i> Postado por: {{ ocorrencia.usuario_nome || 'Anônimo' }}
+      </span>
+      <span class="badge-tempo">
+        <i class="fa-regular fa-calendar"></i> {{ ocorrencia.dataCriacao || 'Data não informada' }}
+      </span>
+    </div>
+  </div>
+
+  <div class="card-horizontal">
+    
+    <div class="col-esquerda">
+      <span class="badge-categoria">{{ formatarCategoria(ocorrencia.categoria) }}</span>
+      
+      <div class="box-foto-destaque">
+        <ng-container *ngIf="listaFotos.length > 0; else semFotoTpl">
+          <button class="btn-seta esquerda" (click)="fotoAnterior()" *ngIf="listaFotos.length > 1">‹</button>
+          <img [src]="listaFotos[fotoSelecionadaIndex]" alt="Foto da Ocorrência" />
+          <button class="btn-seta direita" (click)="proximaFoto()" *ngIf="listaFotos.length > 1">›</button>
+        </ng-container>
+        <ng-template #semFotoTpl>
+          <div class="sem-foto">Sem Foto</div>
+        </ng-template>
+      </div>
+
+      <div class="miniaturas-carrossel" *ngIf="listaFotos.length > 1">
+        <div 
+          class="mini-foto-item" 
+          *ngFor="let foto of listaFotos; let i = index"
+          [ngClass]="{'ativa': i === fotoSelecionadaIndex}"
+          (click)="selecionarFoto(i)">
+          <img [src]="foto" alt="Miniatura" />
+        </div>
+      </div>
+    </div>
+
+    <div class="col-meio">
+      <div class="box-descricao">
+        <span class="label-titulo">Descrição Detalhada:</span>
+        <p class="texto-descricao">{{ ocorrencia.descricao || 'Nenhuma descrição fornecida.' }}</p>
+      </div>
+    </div>
+
+    <div class="col-direita">
+      <div class="box-status">
+        <label class="label-titulo">Status Atual:</label>
+        <div class="caixa-status-readonly" [ngClass]="obterClasseStatus(ocorrencia.status)">
+          {{ ocorrencia.status || 'Pendente' }}
+        </div>
+      </div>
+      <div class="box-rating">
+        <label class="label-titulo">Apoio:</label>
+        <button type="button" class="btn-curtir" [ngClass]="{'ativo': ocorrencia.curtido}" (click)="curtirOcorrencia()">
+          <div class="icone-circulo">
+            <i class="fa-solid fa-thumbs-up"></i>
+          </div>
+          <span>Concordo <strong>({{ ocorrencia.totalCurtidas || 0 }})</strong></span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="secao-comentarios">
+    <div class="comentarios-header-top">
+      <i class="fa-solid fa-comments" style="margin-right: 6px; color: #64748b;"></i> COMENTÁRIOS
+    </div>
+
+    <div class="form-comentario">
+      <textarea 
+        [(ngModel)]="novoComentarioTexto" 
+        placeholder="Escreva seu comentário sobre esta ocorrência..." 
+        rows="3">
+      </textarea>
+      <button type="button" class="btn-enviar-comentario" (click)="adicionarComentario()">
+        <i class="fa-solid fa-paper-plane"></i> Enviar Comentário
+      </button>
+    </div>
+
+    <div class="lista-comentarios" *ngIf="listaComentarios && listaComentarios.length > 0; else semComentariosTpl">
+      <div class="comentario-item" *ngFor="let com of listaComentarios">
+        <div class="comentario-topo">
+          <span class="comentario-autor"><i class="fa-solid fa-user"></i> {{ com.usuario_nome || 'Usuário' }}</span>
+          <span class="comentario-data">{{ com.dataCriacao || 'Recentemente' }}</span>
+        </div>
+        <p class="comentario-texto">{{ com.texto }}</p>
+      </div>
+    </div>
+
+    <ng-template #semComentariosTpl>
+      <p class="sem-comentarios">Nenhum comentário ainda. Seja o primeiro a comentar!</p>
+    </ng-template>
+  </div>
+</div>

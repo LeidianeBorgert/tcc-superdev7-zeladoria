@@ -87,19 +87,13 @@
           
           <p *ngIf="!item.emEdicaoAdmin">{{ item.observacao_admin }}</p>
 
-          <div *ngIf="item.emEdicaoAdmin" class="box-edicao">
-            <textarea class="input-edicao" [(ngModel)]="item.observacaoTemp" placeholder="Digite uma observação..."></textarea>
-            <div class="botoes-edicao">
-              <button type="button" class="btn-salvar" (click)="salvarObservacaoAdmin(item)">Salvar</button>
-              <button type="button" class="btn-cancelar" (click)="cancelarEdicaoAdmin(item)">Cancelar</button>
-            </div>
-          </div>
+
         </div>
       </div>
 
       <div class="col-direita">
         <div class="box-status">
-          <label>Status / Visibilidade:</label>
+          <label>Status:</label>
 
           <select 
             *ngIf="authService.isAdmin()"
@@ -117,26 +111,22 @@
           </div>
         </div>
 
-        <div class="box-rating">
-          <label class="label-rating">Avaliação:</label>
-          <div class="estrelas-container">
-            <span 
-              *ngFor="let estrela of [1, 2, 3, 4, 5]" 
-              class="estrela" 
-              [ngClass]="{'ativa': estrela <= (item.rating || 0)}"
-              (click)="avaliarOcorrencia(item, estrela)"
-              title="{{ estrela }} estrela(s)">
-              ★
-            </span>
+<div class="box-rating">
+          <label class="label-rating">Apoios:</label>
+          <div class="apoios-contador-lista">
+            <i class="fa-solid fa-thumbs-up" style="color: #10b981; margin-right: 6px;"></i>
+            <span>{{ item.totalCurtidas || 0 }} pessoa(s) apoiaram</span>
           </div>
         </div>
 
         <div class="grupo-botoes-acao" *ngIf="authService.isAdmin()">
-          <button type="button" class="btn-editar" (click)="iniciarEdicaoAdmin(item)">
-            <i class="fa-solid fa-pen-to-square"></i> Observação
-          </button>
           <button type="button" class="btn-excluir" (click)="iniciarExclusao(item)">
             <i class="fa-solid fa-trash-can"></i> Excluir
+          </button>
+        </div>
+        <div class="grupo-botoes-acao">
+          <button class="btn-detalhes" [routerLink]="['/ocorrencia', item.id]">
+            Ver mais
           </button>
         </div>
       </div>

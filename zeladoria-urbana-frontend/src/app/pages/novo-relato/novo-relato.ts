@@ -57,6 +57,10 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
   public modoEdicao: boolean = false;
   public ocorrenciaId: number | null = null;
 
+  public arquivosSelecionados: File[] = [];
+  public fotosPreviews: string[] = [];
+  private API_URL = 'http://localhost:8000'
+
   constructor(
     private fb: FormBuilder, 
     private cdr: ChangeDetectorRef, 
@@ -139,22 +143,23 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  public aoSelecionarFoto(event: Event): void {
-    const inputTarget = event.target as HTMLInputElement;
-    if (inputTarget.files && inputTarget.files.length > 0) {
-      const arquivo: File = inputTarget.files[0];
-      this.fotoArquivo = arquivo;
-      this.nomeArquivoSelecionado = arquivo.name;
-      
-      const reader: FileReader = new FileReader();
-      reader.onload = (): void => {
-        this.fotoPreview = reader.result as string;
-        this.relatoForm.patchValue({ foto: this.fotoPreview }); 
+public aoSelecionarFotos(event: Event): void {
+  const inputTarget = event.target as HTMLInputElement;
+  if (inputTarget.files && inputTarget.files.length > 0) {
+    const novosArquivos = Array.from(inputTarget.files);
+    
+    this.arquivosSelecionados = [...this.arquivosSelecionados, ...novosArquivos];
+
+    novosArquivos.forEach(arquivo => {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.fotosPreviews.push(e.target.result);
         this.cdr.detectChanges();
       };
       reader.readAsDataURL(arquivo);
-    }
+    });
   }
+}
 
   public buscarEnderecoNoMapa(): void {
     if (!this.termoBusca || !this.termoBusca.trim()) return;
@@ -347,63 +352,48 @@ export class NovoRelatoComponent implements AfterViewInit, OnDestroy {
     });
   }
 
-  public enviarRelatoCompleto(): void {
-    if (this.relatoForm.invalid) {
-      this.relatoForm.markAllAsTouched();
-      return;
-    }
-
-    const formValue = this.relatoForm.value;
-    
-    const dadosDoRelato = {
-      categoria: formValue.categoria,
-      descricao: formValue.descricao,
-      latitude: formValue.latitude,
-      longitude: formValue.longitude,
-      foto: formValue.foto || null,
-      usuario_nome: this.ehAnonimo ? 'Anônimo' : (formValue.nomeUsuario || 'Anônimo')
-    };
-
-    if (this.modoEdicao && this.ocorrenciaId) {
-      this.relatoService.editarRelato(this.ocorrenciaId, dadosDoRelato as any).subscribe({
-        next: (): void => {
-          this.exibirNotificacao('Relato atualizado com sucesso!', 'sucesso');
-          setTimeout(() => this.router.navigate(['/meu-perfil']), 1500);
-        },
-        error: (erro: any): void => {
-          console.error('Erro ao atualizar o relato:', erro);
-          this.exibirNotificacao('Erro ao atualizar o relato. Tente novamente!', 'erro');
-        }
-      });
-    } else {
-      this.relatoService.salvarRelato(dadosDoRelato).subscribe({
-        next: (): void => {
-          this.exibirNotificacao('Relato salvo com sucesso no banco de dados!', 'sucesso');
-          
-          this.relatoForm.reset(); 
-          this.etapaAtual = 1; 
-          this.fotoPreview = null;
-          this.fotoArquivo = null;
-          this.nomeArquivoSelecionado = '';
-          this.ehAnonimo = false;
-          
-          this.definirAnonimo(false);
-
-          setTimeout((): void => {
-            if (this.map) {
-              this.map.remove();
-              this.map = undefined;
-            }
-            this.initMap();
-          }, 200);
-        },
-        error: (erro: any): void => {
-          console.error('Erro ao conectar na API:', erro);
-          this.exibirNotificacao('Erro ao salvar o relato. Tente novamente!', 'erro');
-        }
-      });
-    }
+public enviarRelatoCompleto(): void {
+  if (this.relatoForm.invalid) {
+    this.relatoForm.markAllAsTouched();
+    return;
   }
+
+  const formData = new FormData();
+  const formValue = this.relatoForm.value;
+
+  formData.append('categoria', formValue.categoria);
+  formData.append('descricao', formValue.descricao);
+  formData.append('latitude', formValue.latitude);
+  formData.append('longitude', formValue.longitude);
+  formData.append('usuario_nome', this.ehAnonimo ? 'Anônimo' : (formValue.nomeUsuario || 'Anônimo'));
+
+  this.arquivosSelecionados.forEach(arquivo => {
+    formData.append('fotos', arquivo);
+  });
+
+  const url = `${this.API_URL}/api/relatos`;
+
+  if (this.modoEdicao && this.ocorrenciaId) {
+    this.http.put(`${url}/${this.ocorrenciaId}`, formData).subscribe({
+      next: () => {
+        this.exibirNotificacao('Relato atualizado com sucesso!', 'sucesso');
+        setTimeout(() => this.router.navigate(['/meu-perfil']), 1500);
+      },
+      error: (err) => console.error('Erro ao atualizar:', err)
+    });
+  } else {
+    this.http.post(url, formData).subscribe({
+      next: () => {
+        this.exibirNotificacao('Relato enviado com sucesso!', 'sucesso');
+        this.relatoForm.reset();
+        this.arquivosSelecionados = [];
+        this.fotosPreviews = [];
+        this.etapaAtual = 1;
+      },
+      error: (err) => console.error('Erro ao enviar relato:', err)
+    });
+  }
+}
 
   private exibirNotificacao(mensagem: string, tipo: 'sucesso' | 'erro'): void {
     this.mensagemNotificacao = mensagem;

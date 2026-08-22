@@ -36,6 +36,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/configuracoes/configuracoes').then(m => m.ConfiguracoesComponent),
     canActivate: [authGuard] 
   },
+  {
+  path: 'ocorrencia/:id',
+  loadComponent: () => import('./features/ocorrencia-detalhe/ocorrencia-detalhe').then(m => m.OcorrenciaDetalheComponent)
+  },
 
   { path: '**', redirectTo: 'dashboard' }
 ];

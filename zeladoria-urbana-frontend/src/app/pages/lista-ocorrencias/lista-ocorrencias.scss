@@ -260,56 +260,6 @@
           line-height: 1.35;
         }
       }
-
-      .box-edicao {
-        margin-top: 8px;
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-
-        .input-edicao {
-          width: 100%;
-          padding: 8px;
-          border: 1px solid #cbd5e1;
-          border-radius: 6px;
-          font-family: inherit;
-          resize: vertical;
-          min-height: 60px;
-        }
-
-        .botoes-edicao {
-          display: flex;
-          gap: 8px;
-
-          .btn-salvar {
-            background-color: #10b981;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-
-            &:hover {
-              background-color: #059669;
-            }
-          }
-
-          .btn-cancelar {
-            background-color: #64748b;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: 600;
-
-            &:hover {
-              background-color: #475569;
-            }
-          }
-        }
-      }
     }
 
     .col-direita {
@@ -365,6 +315,7 @@
         }
       }
 
+      /* Caixa de apoios ajustada com fonte menor */
       .box-rating {
         width: 100%;
         background-color: #f8fafc;
@@ -385,25 +336,13 @@
           width: 100%;
         }
 
-        .estrelas-container {
+        .apoios-contador-lista {
+          font-size: 0.75rem;
+          color: #334155;
+          font-weight: 600;
           display: flex;
-          gap: 4px;
-          cursor: pointer;
-
-          .estrela {
-            font-size: 1.2rem;
-            color: #cbd5e1;
-            transition: color 0.15s ease, transform 0.15s ease;
-
-            &.ativa {
-              color: #f59e0b;
-            }
-
-            &:hover {
-              transform: scale(1.15);
-              color: #fbbf24;
-            }
-          }
+          align-items: center;
+          justify-content: center;
         }
       }
 
@@ -413,7 +352,7 @@
         width: 100%;
         margin-top: 2px;
 
-        .btn-editar, .btn-excluir {
+        .btn-excluir {
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -426,24 +365,40 @@
           font-size: 0.75rem; 
           white-space: nowrap; 
           flex: 1;
-          transition: background-color 0.2s ease;
-        }
-
-        .btn-editar {
-          background-color: #f59e0b;
-          color: white;
-
-          &:hover {
-            background-color: #d97706;
-          }
-        }
-
-        .btn-excluir {
           background-color: #ef4444;
           color: white;
+          transition: background-color 0.2s ease;
 
           &:hover {
             background-color: #dc2626;
+          }
+        }
+
+        /* Botão "Ver mais" estilizado com ícone de olho */
+        .btn-detalhes {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          width: 100%;
+          padding: 8px 12px;
+          background-color: #f8fafc;
+          color: #334155;
+          border: 1px solid #cbd5e1;
+          border-radius: 6px;
+          font-weight: 600;
+          font-size: 0.85rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          i {
+            color: #64748b;
+          }
+
+          &:hover {
+            background-color: #f1f5f9;
+            border-color: #94a3b8;
+            color: #0f172a;
           }
         }
       }

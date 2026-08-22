@@ -16,7 +16,7 @@ Tela de Ocorrências:
 
 - Permitir outros usuário dar o like
 - Se colocar como concluído perguntar para o usuário se problema foi relamente resolvido ou não
-- ajustar postado por para pegar o nome
+- ajustar postado por para pegar o nome ok
 
 
 Criar um sistema de administrador (prefeitura/....)
@@ -28,3 +28,12 @@ Por favor: TEMA DARK
 Mostrar mapa com o quaão quente estão as Ocorrências por local procurar por heatmap
 Permitir integrar com AI
 
+---------------------------------------------------------------------------------
+falta fazer ainda
+
+Por favor: TEMA DARK
+ajuste da tela de configuração
+
+botão do avalidar ou dar like fazer que ele funcione
+
+ajustar quando o usuario colocar como anonimo

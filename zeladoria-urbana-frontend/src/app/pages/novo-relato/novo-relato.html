@@ -102,13 +102,14 @@
       </div>
     </div>
 
-    <div *ngIf="etapaAtual === 3" class="etapa-card">
+<div *ngIf="etapaAtual === 3" class="etapa-card">
       <h2>Adicione Evidências Visuais</h2>
-      <p>Se tiver, selecione um arquivo de imagem do seu dispositivo para anexar ao relato.</p>
+      <p>Se tiver, selecione um ou mais arquivos de imagem do seu dispositivo para anexar ao relato.</p>
 
       <div class="upload-area">
-        <label for="file-upload" class="upload-label">
-          <div class="upload-icon" *ngIf="!fotoPreview">
+        <label for="file-upload" class="upload-label" style="cursor: pointer; display: block;">
+          
+          <div class="upload-icon" *ngIf="fotosPreviews.length === 0">
             <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none"
               stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -117,17 +118,19 @@
             </svg>
           </div>
 
-          <div *ngIf="fotoPreview" class="preview-container" style="margin-bottom: 12px;">
-            <img [src]="fotoPreview" alt="Prévia do relato" style="max-height: 150px; border-radius: 8px; object-fit: cover;" />
+          <div class="preview-container" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 12px;" *ngIf="fotosPreviews.length > 0">
+            <div *ngFor="let preview of fotosPreviews" style="position: relative;">
+              <img [src]="preview" alt="Prévia do relato" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 1px solid #ccc;" />
+            </div>
           </div>
 
           <span class="upload-text">
-            <strong>Clique para selecionar</strong> ou arraste a imagem aqui
+            <strong>Clique para selecionar</strong> ou arraste as imagens aqui
           </span>
-          <span class="upload-hint">PNG, JPG ou JPEG (máx. 5MB)</span>
+          <span class="upload-hint">PNG, JPG ou JPEG (máx. 5MB cada)</span>
 
-          <span *ngIf="nomeArquivoSelecionado" class="arquivo-nome" style="margin-top: 10px; font-weight: 600;">
-             {{ nomeArquivoSelecionado }}
+          <span *ngIf="arquivosSelecionados.length > 0" class="arquivo-nome" style="margin-top: 10px; font-weight: 600; display: block; color: #2e7d32;">
+            {{ arquivosSelecionados.length }} foto(s) selecionada(s)
           </span>
         </label>
 
@@ -135,8 +138,10 @@
           type="file" 
           id="file-upload" 
           accept="image/*" 
-          (change)="aoSelecionarFoto($event)"
+          multiple
+          (change)="aoSelecionarFotos($event)"
           class="file-input-hidden" 
+          style="display: none;"
         />
       </div>
 

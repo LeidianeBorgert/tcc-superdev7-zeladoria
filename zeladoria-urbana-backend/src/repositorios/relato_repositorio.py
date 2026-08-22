@@ -7,6 +7,8 @@ def obter_todos(db: Session):
     
     resultado = []
     for r in lista_relatos:
+        extras = r.fotos_extras.split(",") if r.fotos_extras else []
+
         resultado.append({
             "id": r.id,
             "categoria": r.categoria,
@@ -16,13 +18,13 @@ def obter_todos(db: Session):
             "dataCriacao": r.dataCriacao,  
             "status": r.status,
             "foto": r.foto,
+            "fotos": extras, 
             "usuario_nome": getattr(r, 'usuario_nome', 'Anônimo') or 'Anônimo',
-            "observacao_admin": getattr(r, 'observacao_admin', None) 
         })
     return resultado
 
 def criar(db: Session, categoria: str, descricao: str, latitude: str, 
-          longitude: str, foto: str = None, usuario_nome: str = "Anônimo"):
+          longitude: str, foto: str = None, fotos_extras: str = None,usuario_nome: str = "Anônimo"):
     data_atual = datetime.now().strftime('%d/%m/%Y')
     novo_relato = Relato(
         categoria=categoria,
@@ -32,12 +34,14 @@ def criar(db: Session, categoria: str, descricao: str, latitude: str,
         dataCriacao=data_atual,
         status="Pendente",
         foto=foto,
+        fotos_extras=fotos_extras,
         usuario_nome=usuario_nome if usuario_nome else "Anônimo",
-        observacao_admin=None
     )
     db.add(novo_relato)
     db.commit()
     db.refresh(novo_relato)
+
+    extras_lista = novo_relato.fotos_extras.split(",") if novo_relato.fotos_extras else []
     
     return {
         "id": novo_relato.id,
@@ -48,8 +52,8 @@ def criar(db: Session, categoria: str, descricao: str, latitude: str,
         "dataCriacao": novo_relato.dataCriacao,
         "status": novo_relato.status,
         "foto": novo_relato.foto,
+        "fotos": extras_lista,
         "usuario_nome": novo_relato.usuario_nome,
-        "observacao_admin": novo_relato.observacao_admin
     }
 
 def atualizar_status(db: Session, id: int, novo_status: str):
@@ -91,3 +95,6 @@ def atualizar_completo(db: Session, id: int, dados):
         db.refresh(relato)
         return relato
     return None
+
+def obter_por_id(db: Session, relato_id: int):
+    return db.query(Relato).filter(Relato.id == relato_id).first()
